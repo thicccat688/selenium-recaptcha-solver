@@ -7,13 +7,19 @@ from selenium import webdriver
 import pytest
 
 
-test_driver = webdriver.Chrome()
-
 options = webdriver.ChromeOptions()
 
-# options.headless = True
+options.add_experimental_option('detach', True)
+
+options.add_argument("--headless")
+options.add_argument("--window-size=1920,1080")
+
+options.add_argument('--no-sandbox')
+options.add_argument("--disable-extensions")
 
 service = Service(ChromeDriverManager().install())
+
+test_driver = webdriver.Chrome(options=options, service=service)
 
 solver = API(driver=test_driver)
 

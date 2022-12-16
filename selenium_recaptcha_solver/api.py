@@ -88,6 +88,8 @@ class API:
 
             self._solve_audio_challenge()
 
+            self._js_click(verify_button)
+
         except TimeoutException:
             pass
 
@@ -97,24 +99,15 @@ class API:
 
     def _solve_audio_challenge(self) -> None:
         try:
-            block_message = self._wait_for_element(
+            # Locate audio challenge download link and download it via requests in to temporary files
+            download_link = self._wait_for_element(
                 tag='class name',
-                locator='rc-doscaptcha-header-text',
-                timeout=1,
+                locator='rc-audiochallenge-tdownload-link',
+                timeout=10,
             )
 
-            if getattr(block_message, 'text') == 'Try again later':
-                raise RecaptchaException('Google has detected automated queries. Try again later.')
-
         except TimeoutException:
-            pass
-
-        # Locate audio challenge download link and download it via requests in to temporary files
-        download_link = self._wait_for_element(
-            tag='class name',
-            locator='rc-audiochallenge-tdownload-link',
-            timeout=10,
-        )
+            raise RecaptchaException('Google has detected automated queries. Try again later.')
 
         # Create temporary directory and temporary files
         tmp_dir = tempfile.gettempdir()
