@@ -1,0 +1,76 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="HtmlUnknownAttribute" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="myValues">
+        <value>
+          <list size="1">
+            <item index="0" class="java.lang.String" itemvalue="simulationlink" />
+          </list>
+        </value>
+      </option>
+      <option name="myCustomValuesEnabled" value="true" />
+    </inspection_tool>
+    <inspection_tool class="HtmlUnknownTag" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="myValues">
+        <value>
+          <list size="8">
+            <item index="0" class="java.lang.String" itemvalue="nobr" />
+            <item index="1" class="java.lang.String" itemvalue="noembed" />
+            <item index="2" class="java.lang.String" itemvalue="comment" />
+            <item index="3" class="java.lang.String" itemvalue="noscript" />
+            <item index="4" class="java.lang.String" itemvalue="embed" />
+            <item index="5" class="java.lang.String" itemvalue="script" />
+            <item index="6" class="java.lang.String" itemvalue="title" />
+            <item index="7" class="java.lang.String" itemvalue="ula" />
+          </list>
+        </value>
+      </option>
+      <option name="myCustomValuesEnabled" value="true" />
+    </inspection_tool>
+    <inspection_tool class="PyBroadExceptionInspection" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
+    <inspection_tool class="PyPackageRequirementsInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredPackages">
+        <value>
+          <list size="19">
+            <item index="0" class="java.lang.String" itemvalue="psycopg2-binary" />
+            <item index="1" class="java.lang.String" itemvalue="pandas" />
+            <item index="2" class="java.lang.String" itemvalue="pyotp" />
+            <item index="3" class="java.lang.String" itemvalue="openpyxl" />
+            <item index="4" class="java.lang.String" itemvalue="re" />
+            <item index="5" class="java.lang.String" itemvalue="tqdm" />
+            <item index="6" class="java.lang.String" itemvalue="charset-normalizer" />
+            <item index="7" class="java.lang.String" itemvalue="python-dotenv" />
+            <item index="8" class="java.lang.String" itemvalue="numpy" />
+            <item index="9" class="java.lang.String" itemvalue="requests" />
+            <item index="10" class="java.lang.String" itemvalue="beautifulsoup4" />
+            <item index="11" class="java.lang.String" itemvalue="colorama" />
+            <item index="12" class="java.lang.String" itemvalue="certifi" />
+            <item index="13" class="java.lang.String" itemvalue="h11" />
+            <item index="14" class="java.lang.String" itemvalue="pytz" />
+            <item index="15" class="java.lang.String" itemvalue="urllib3" />
+            <item index="16" class="java.lang.String" itemvalue="pyparsing" />
+            <item index="17" class="java.lang.String" itemvalue="sniffio" />
+            <item index="18" class="java.lang.String" itemvalue="idna" />
+          </list>
+        </value>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="PyPep8NamingInspection" enabled="true" level="WEAK WARNING" enabled_by_default="true">
+      <option name="ignoredErrors">
+        <list>
+          <option value="N812" />
+        </list>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="PyUnresolvedReferencesInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredIdentifiers">
+        <list>
+          <option value="requests.models.Request.close" />
+          <option value="dict.__getitem__" />
+          <option value="list.__getitem__" />
+        </list>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>
