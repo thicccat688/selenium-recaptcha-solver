@@ -93,9 +93,8 @@ class API:
         except TimeoutException:
             pass
 
-        finally:
-            # Switch back to driver's default content
-            self.__driver.switch_to.default_content()
+        # Switch back to driver's default content
+        self.__driver.switch_to.default_content()
 
     def _solve_audio_challenge(self) -> None:
         try:
@@ -128,7 +127,7 @@ class API:
         # Convert mp3 to wav format for compatibility with Google's speech recognition API
         AudioSegment.from_mp3(mp3_file).export(wav_file, format='wav')
 
-        # Disable dynamic energy thershold to avoid failed Captcha audio transcription due to static noise
+        # Disable dynamic energy threshold to avoid failed Captcha audio transcription due to static noise
         self.__recognizer.dynamic_energy_threshold = False
 
         with sr.AudioFile(wav_file) as source:
