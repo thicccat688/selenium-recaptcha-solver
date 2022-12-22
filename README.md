@@ -3,6 +3,8 @@
 This package is used to solve recaptcha challenges when 
 using a Selenium web driver for web automation tasks.
 
+It supports single-step and multi-step audio solving for ReCAPTCHA audio challenges.
+
 ## Requirements 
 
 Python 3.7+
