@@ -81,14 +81,21 @@ class API:
 
         try:
             self._wait_for_element(
-                tag='class name',
-                locator='rc-audiochallenge-error-message',
+                tag='xpath',
+                locator='//div[normalize-space()="Multiple correct solutions required - please solve more."]',
                 timeout=1,
             )
 
             self._solve_audio_challenge()
 
-            self._js_click(verify_button)
+            # Locate verify button again to avoid stale element reference and click it via JavaScript
+            second_verify_button = self._wait_for_element(
+                tag='id',
+                locator='recaptcha-verify-button',
+                timeout=5,
+            )
+
+            self._js_click(second_verify_button)
 
         except TimeoutException:
             pass
@@ -133,6 +140,8 @@ class API:
         self.__recognizer.energy_threshold = 400
 
         with sr.AudioFile(wav_file) as source:
+            self.__recognizer.adjust_for_ambient_noise(source, duration=1)
+
             audio = self.__recognizer.listen(source)
 
             try:
