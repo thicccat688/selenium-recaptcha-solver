@@ -130,6 +130,8 @@ class API:
         # Disable dynamic energy threshold to avoid failed Captcha audio transcription due to static noise
         self.__recognizer.dynamic_energy_threshold = False
 
+        self.__recognizer.energy_threshold = 400
+
         with sr.AudioFile(wav_file) as source:
             audio = self.__recognizer.listen(source)
 
@@ -137,7 +139,7 @@ class API:
                 recognized_text = self.__recognizer.recognize_google(audio, key=self.__google_api_key)
 
             except sr.UnknownValueError:
-                raise RecaptchaException('Failed to automatically solve Captcha, try again.')
+                raise RecaptchaException('Speech recognition API could not understand audio, try again.')
 
         # Clean up all temporary files
         self._cleanup(tmp_files)
