@@ -140,8 +140,6 @@ class API:
         self.__recognizer.energy_threshold = 400
 
         with sr.AudioFile(wav_file) as source:
-            self.__recognizer.adjust_for_ambient_noise(source, duration=1)
-
             audio = self.__recognizer.listen(source)
 
             try:
