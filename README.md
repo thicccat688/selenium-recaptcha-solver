@@ -51,6 +51,9 @@ api_client.click_recaptcha_v2(iframe=iframe)
 # Write the rest of your operations to do after solving the Captcha
 ```
 
+## Demonstration
+[![Image from Gyazo](https://i.gyazo.com/858ceb5df9f43f6aafadf69e233cd2d1.gif)](https://gyazo.com/858ceb5df9f43f6aafadf69e233cd2d1)
+
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 Please make sure to update tests as appropriate.
