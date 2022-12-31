@@ -137,8 +137,6 @@ class API:
         # Disable dynamic energy threshold to avoid failed Captcha audio transcription due to static noise
         self.__recognizer.dynamic_energy_threshold = False
 
-        self.__recognizer.energy_threshold = 400
-
         with sr.AudioFile(wav_file) as source:
             audio = self.__recognizer.listen(source)
 

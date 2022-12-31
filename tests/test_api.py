@@ -3,7 +3,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.service import Service
 from selenium_recaptcha_solver.api import API
-from selenium import webdriver
+import undetected_chromedriver as webdriver
 import pytest
 
 
