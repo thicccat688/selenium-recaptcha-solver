@@ -5,6 +5,10 @@ using a Selenium web driver for web automation tasks.
 
 It supports single-step and multi-step audio solving for ReCAPTCHA audio challenges.
 
+Note: ReCAPTCHA may detect automated queries if you're solving multiple ReCAPTCHA challenges in a row or if you're not using an undetectable driver. If you need a webdriver that's undetectable I recommend you use the one I link below.
+
+https://github.com/ultrafunkamsterdam/undetected-chromedriver
+
 ## Requirements 
 
 Python 3.7+
