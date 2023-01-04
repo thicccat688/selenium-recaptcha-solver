@@ -33,10 +33,19 @@ python -m pip install selenium-recaptcha-solver
 
 ```python
 from selenium_recaptcha_solver import API
-from selenium import webdriver
+import undetected_chromedriver as webdriver
+
+
+test_ua = 'Mozilla/5.0 (Windows NT 4.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2049.0 Safari/537.36'
+
+options = webdriver.ChromeOptions()
+
+options.add_argument("--headless")
+options.add_argument("--window-size=1920,1080")
+options.add_argument(f'--user-agent={test_ua}')
 
 # Example driver, the API works for any browser
-driver = webdriver.Chrome()
+driver = webdriver.Chrome(options=options)
 
 # Create API object and bind it to your webdriver
 api_client = API(driver=driver)
@@ -58,6 +67,8 @@ api_client.click_recaptcha_v2(iframe=iframe)
 
 # Write the rest of your operations to do after solving the Captcha
 ```
+
+You can check a detailed use case in the tests folder of this project (Its execution is shown below in the demonstration chapter).
 
 ## Demonstration
 [![Image from Gyazo](https://i.gyazo.com/858ceb5df9f43f6aafadf69e233cd2d1.gif)](https://gyazo.com/858ceb5df9f43f6aafadf69e233cd2d1)
