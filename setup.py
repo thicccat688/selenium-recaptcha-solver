@@ -18,7 +18,7 @@ setup(
         'attrs==22.1.0',
         'blinker==1.5',
         'Brotli==1.0.9',
-        'certifi==2022.9.24',
+        'certifi==2022.12.7',
         'cffi==1.15.1',
         'charset-normalizer==2.1.1',
         'colorama==0.4.6',
