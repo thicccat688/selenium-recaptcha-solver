@@ -21,6 +21,8 @@ Main dependencies:
     <li>Pydub for file conversions</li>
 </ul>
 
+You also need FFmpeg installed on your machine (and in your PATH if you're using Windows).
+
 ## Installation
 
 ```bash
