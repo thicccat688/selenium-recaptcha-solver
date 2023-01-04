@@ -48,7 +48,7 @@ iframe = driver.find_element(
     value='bar',
 )
 
-# Solve Captcha using API (Usually used for Captcha challenges or invisible ReCaptchaV2)
+# Solve Captcha using API (Usually used for ReCAPTCHA challenges or invisible ReCAPTCHA V2 - The ones that pop up from clicking a button or from another action done by the user)
 api_client.solve_recaptcha_v2(iframe=iframe)
 
 # Or solve a Captcha V2 visible (The one where you have to click a checkbox - If a challenge pops up after the click it's automatically resolved)
