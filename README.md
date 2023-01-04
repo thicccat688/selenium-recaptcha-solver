@@ -5,9 +5,11 @@ using a Selenium web driver for web automation tasks.
 
 It supports single-step and multi-step audio solving for ReCAPTCHA audio challenges.
 
-Note: ReCAPTCHA may detect automated queries if you're solving multiple ReCAPTCHA challenges in a row or if you're not using an undetectable driver. If you need a webdriver that's undetectable I recommend you use the one I link below.
+**Note:** ReCAPTCHA may detect automated queries if you're solving multiple ReCAPTCHA challenges in a row or not using a hard-to-detect web driver. If you need a hard-to-detect web driver, I recommend you use the one I link below. Make sure that if you're using a headless web driver, you set a non-headless user agent (I've also placed the one I usually use below)!
 
-https://github.com/ultrafunkamsterdam/undetected-chromedriver
+User-agent: Mozilla/5.0 (Windows NT 4.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2049.0 Safari/537.36
+
+Hard-to-detect web driver: https://github.com/ultrafunkamsterdam/undetected-chromedriver
 
 ## Requirements 
 
@@ -19,6 +21,8 @@ Main dependencies:
     <li>Pydub for file conversions</li>
 </ul>
 
+You also need FFmpeg installed on your machine (and in your PATH if you're using Windows).
+
 ## Installation
 
 ```bash
@@ -29,10 +33,19 @@ python -m pip install selenium-recaptcha-solver
 
 ```python
 from selenium_recaptcha_solver import API
-from selenium import webdriver
+import undetected_chromedriver as webdriver
+
+
+test_ua = 'Mozilla/5.0 (Windows NT 4.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2049.0 Safari/537.36'
+
+options = webdriver.ChromeOptions()
+
+options.add_argument("--headless")
+options.add_argument("--window-size=1920,1080")
+options.add_argument(f'--user-agent={test_ua}')
 
 # Example driver, the API works for any browser
-driver = webdriver.Chrome()
+driver = webdriver.Chrome(options=options)
 
 # Create API object and bind it to your webdriver
 api_client = API(driver=driver)
@@ -46,7 +59,7 @@ iframe = driver.find_element(
     value='bar',
 )
 
-# Solve Captcha using API (Usually used for Captcha challenges or invisible ReCaptchaV2)
+# Solve Captcha using API (Usually used for ReCAPTCHA challenges or invisible ReCAPTCHA V2 - The ones that pop up from clicking a button or from another action done by the user)
 api_client.solve_recaptcha_v2(iframe=iframe)
 
 # Or solve a Captcha V2 visible (The one where you have to click a checkbox - If a challenge pops up after the click it's automatically resolved)
@@ -54,6 +67,8 @@ api_client.click_recaptcha_v2(iframe=iframe)
 
 # Write the rest of your operations to do after solving the Captcha
 ```
+
+You can check a detailed use case in the tests folder of this project (Its execution is shown below in the demonstration chapter).
 
 ## Demonstration
 [![Image from Gyazo](https://i.gyazo.com/858ceb5df9f43f6aafadf69e233cd2d1.gif)](https://gyazo.com/858ceb5df9f43f6aafadf69e233cd2d1)
