@@ -21,7 +21,11 @@ Main dependencies:
     <li>Pydub for file conversions</li>
 </ul>
 
-You also need FFmpeg installed on your machine (and in your PATH if you're using Windows).
+This solver uses audio transcription to automatically solve ReCAPTCHA challenges, so you need to have FFmpeg installed on your machine and in your PATH (If using windows) or installed on your machine (For Linux or MacOS).
+
+Guide for installing FFmpeg on Windows: https://phoenixnap.com/kb/ffmpeg-windows
+Guide for installing FFmpeg on Linux: https://www.tecmint.com/install-ffmpeg-in-linux/
+Guide for installing FFmpeg on MacOS: https://phoenixnap.com/kb/ffmpeg-mac
 
 ## Installation
 
@@ -59,10 +63,10 @@ iframe = driver.find_element(
     value='bar',
 )
 
-# Solve Captcha using API (Usually used for ReCAPTCHA challenges or invisible ReCAPTCHA V2 - The ones that pop up from clicking a button or from another action done by the user)
+# Solve ReCAPTCHA using API (Usually used for ReCAPTCHA challenges or invisible ReCAPTCHA V2 - The ones that pop up from clicking a button or from another action done by the user)
 api_client.solve_recaptcha_v2(iframe=iframe)
 
-# Or solve a Captcha V2 visible (The one where you have to click a checkbox - If a challenge pops up after the click it's automatically resolved)
+# Or solve a ReCAPTCHA V2 visible (The one where you have to click a checkbox - If a challenge pops up after the click it's automatically resolved)
 api_client.click_recaptcha_v2(iframe=iframe)
 
 # Write the rest of your operations to do after solving the Captcha
