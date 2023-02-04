@@ -8,20 +8,24 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import TimeoutException
 from pydub import AudioSegment
 import speech_recognition as sr
+import random
 import requests
 import tempfile
+import time
 import os
 
 
 class API:
-    def __init__(self, driver: WebDriver, google_api_key: str = None):
+    def __init__(self, driver: WebDriver, slow_mode = False, google_api_key: str = None):
         """
-        :param driver: Selenium web driver where the Captcha will be solved on
+        :param driver: Selenium web driver to use to solve the Captcha
+        :param slow_mode: Sleep for brief durations between UI interactions
         :param google_api_key: API key for Google's Speech API (A generic API key is already provided but it can
         be revoked by Google at any time, you can get an API key at https://cloud.google.com/speech-to-text)
         """
 
         self.__driver = driver
+        self.__slow_mode = slow_mode
 
         # Initialise speech recognition API object
         self.__recognizer = sr.Recognizer()
@@ -39,6 +43,7 @@ class API:
             value='recaptcha-anchor',
         )
 
+        self._random_sleep()
         self._js_click(checkbox)
 
         if checkbox.get_attribute('checked'):
@@ -68,6 +73,7 @@ class API:
             timeout=10,
         )
 
+        self._random_sleep()
         self._js_click(audio_button)
 
         self._solve_audio_challenge()
@@ -79,6 +85,7 @@ class API:
             timeout=5,
         )
 
+        self._random_sleep()
         self._js_click(verify_button)
 
         try:
@@ -151,7 +158,13 @@ class API:
         self._cleanup(tmp_files)
 
         # Write transcribed text to iframe's input box
-        self.__driver.find_element(by='id', value='audio-response').send_keys(recognized_text)
+        response_textbox = self.__driver.find_element(by='id', value='audio-response')
+        self._random_sleep()
+        response_textbox.send_keys(recognized_text)
+
+    def _random_sleep(self):
+        if self.__slow_mode:
+            time.sleep(random.randrange(1.0, 4.0))
 
     def _js_click(self, element: WebElement) -> None:
         """
