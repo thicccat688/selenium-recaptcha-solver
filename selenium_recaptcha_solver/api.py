@@ -16,12 +16,11 @@ import os
 
 
 class API:
-    def __init__(self, driver: WebDriver, slow_mode = False, google_api_key: str = None):
+    def __init__(self, driver: WebDriver, slow_mode = False, google_credentials_json: Optional[str] = None):
         """
         :param driver: Selenium web driver to use to solve the Captcha
         :param slow_mode: Sleep for brief durations between UI interactions
-        :param google_api_key: API key for Google's Speech API (A generic API key is already provided but it can
-        be revoked by Google at any time, you can get an API key at https://cloud.google.com/speech-to-text)
+        :param google_credentials_json: credentials for Google Cloud Speech-to-Text API; generic credentials are already provided, but can be revoked by Google at any time; you can set up your own service at https://cloud.google.com/speech-to-text)
         """
 
         self.__driver = driver
@@ -29,7 +28,7 @@ class API:
 
         # Initialise speech recognition API object
         self.__recognizer = sr.Recognizer()
-        self.__google_api_key = google_api_key
+        self.__google_credentials_json = google_credentials_json
 
     def click_recaptcha_v2(self, iframe: WebElement) -> None:
         """
@@ -139,7 +138,7 @@ class API:
 
             f.close()
 
-        # Convert mp3 to wav format for compatibility with Google's speech recognition API
+        # Convert mp3 to wav format for compatibility with Google Cloud Speech-to-Text API
         AudioSegment.from_mp3(mp3_file).export(wav_file, format='wav')
 
         # Disable dynamic energy threshold to avoid failed Captcha audio transcription due to static noise
@@ -149,10 +148,9 @@ class API:
             audio = self.__recognizer.listen(source)
 
             try:
-                recognized_text = self.__recognizer.recognize_google(audio, key=self.__google_api_key)
-
+                recognized_text = self.__recognizer.recognize_google_cloud(audio, credentials_json=self.__google_credentials_json)
             except sr.UnknownValueError:
-                raise RecaptchaException('Speech recognition API could not understand audio, try again.')
+                raise RecaptchaException('Cloud Speech-to-Text API could not understand audio, try again')
 
         # Clean up all temporary files
         self._cleanup(tmp_files)
