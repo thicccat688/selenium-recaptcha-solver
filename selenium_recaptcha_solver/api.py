@@ -1,3 +1,5 @@
+from typing import Any, Optional
+
 from selenium_recaptcha_solver.exceptions import RecaptchaException
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.remote.webelement import WebElement
@@ -42,7 +44,7 @@ class API:
         if checkbox.get_attribute('checked'):
             return
 
-        self.__driver.switch_to.default_content()
+        self.__driver.switch_to.parent_frame()
 
         captcha_challenge = self._wait_for_element(
             tag='xpath',
@@ -95,23 +97,22 @@ class API:
                 timeout=5,
             )
 
+            self._random_sleep()
             self._js_click(second_verify_button)
 
         except TimeoutException:
             pass
 
-        # Switch back to driver's default content
-        self.__driver.switch_to.default_content()
+        self.__driver.switch_to.parent_frame()
 
     def _solve_audio_challenge(self) -> None:
         try:
             # Locate audio challenge download link and download it via requests in to temporary files
-            download_link = self._wait_for_element(
+            download_link: WebElement = self._wait_for_element(
                 tag='class name',
                 locator='rc-audiochallenge-tdownload-link',
                 timeout=10,
             )
-
         except TimeoutException:
             raise RecaptchaException('Google has detected automated queries. Try again later.')
 
@@ -164,7 +165,7 @@ class API:
             tag: str,
             locator: str,
             timeout: int,
-    ) -> any:
+    ) -> Any:
         """
         :param tag: Tag to get element by (id, class name, xpath, tag name, etc.)
         :param locator: Value of the tag (Example: tag -> id, locator -> button-id)
