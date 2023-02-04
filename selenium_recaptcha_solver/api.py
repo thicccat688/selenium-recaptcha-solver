@@ -1,3 +1,5 @@
+from typing import Any, Optional
+
 from selenium_recaptcha_solver.exceptions import RecaptchaException
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.remote.webelement import WebElement
@@ -6,24 +8,27 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import TimeoutException
 from pydub import AudioSegment
 import speech_recognition as sr
+import random
 import requests
 import tempfile
+import time
 import os
 
 
 class API:
-    def __init__(self, driver: WebDriver, google_api_key: str = None):
+    def __init__(self, driver: WebDriver, slow_mode = False, google_credentials_json: Optional[str] = None):
         """
-        :param driver: Selenium web driver where the Captcha will be solved on
-        :param google_api_key: API key for Google's Speech API (A generic API key is already provided but it can
-        be revoked by Google at any time, you can get an API key at https://cloud.google.com/speech-to-text)
+        :param driver: Selenium web driver to use to solve the Captcha
+        :param slow_mode: Sleep for brief durations between UI interactions
+        :param google_credentials_json: credentials for Google Cloud Speech-to-Text API; generic credentials are already provided, but can be revoked by Google at any time; you can set up your own service at https://cloud.google.com/speech-to-text)
         """
 
         self.__driver = driver
+        self.__slow_mode = slow_mode
 
         # Initialise speech recognition API object
         self.__recognizer = sr.Recognizer()
-        self.__google_api_key = google_api_key
+        self.__google_credentials_json = google_credentials_json
 
     def click_recaptcha_v2(self, iframe: WebElement) -> None:
         """
@@ -37,12 +42,13 @@ class API:
             value='recaptcha-anchor',
         )
 
+        self._random_sleep()
         self._js_click(checkbox)
 
         if checkbox.get_attribute('checked'):
             return
 
-        self.__driver.switch_to.default_content()
+        self.__driver.switch_to.parent_frame()
 
         captcha_challenge = self._wait_for_element(
             tag='xpath',
@@ -66,6 +72,7 @@ class API:
             timeout=10,
         )
 
+        self._random_sleep()
         self._js_click(audio_button)
 
         self._solve_audio_challenge()
@@ -77,6 +84,7 @@ class API:
             timeout=5,
         )
 
+        self._random_sleep()
         self._js_click(verify_button)
 
         try:
@@ -95,23 +103,22 @@ class API:
                 timeout=5,
             )
 
+            self._random_sleep()
             self._js_click(second_verify_button)
 
         except TimeoutException:
             pass
 
-        # Switch back to driver's default content
-        self.__driver.switch_to.default_content()
+        self.__driver.switch_to.parent_frame()
 
     def _solve_audio_challenge(self) -> None:
         try:
             # Locate audio challenge download link and download it via requests in to temporary files
-            download_link = self._wait_for_element(
+            download_link: WebElement = self._wait_for_element(
                 tag='class name',
                 locator='rc-audiochallenge-tdownload-link',
                 timeout=10,
             )
-
         except TimeoutException:
             raise RecaptchaException('Google has detected automated queries. Try again later.')
 
@@ -131,7 +138,7 @@ class API:
 
             f.close()
 
-        # Convert mp3 to wav format for compatibility with Google's speech recognition API
+        # Convert mp3 to wav format for compatibility with Google Cloud Speech-to-Text API
         AudioSegment.from_mp3(mp3_file).export(wav_file, format='wav')
 
         # Disable dynamic energy threshold to avoid failed Captcha audio transcription due to static noise
@@ -141,16 +148,21 @@ class API:
             audio = self.__recognizer.listen(source)
 
             try:
-                recognized_text = self.__recognizer.recognize_google(audio, key=self.__google_api_key)
-
+                recognized_text = self.__recognizer.recognize_google_cloud(audio, credentials_json=self.__google_credentials_json)
             except sr.UnknownValueError:
-                raise RecaptchaException('Speech recognition API could not understand audio, try again.')
+                raise RecaptchaException('Cloud Speech-to-Text API could not understand audio, try again')
 
         # Clean up all temporary files
         self._cleanup(tmp_files)
 
         # Write transcribed text to iframe's input box
-        self.__driver.find_element(by='id', value='audio-response').send_keys(recognized_text)
+        response_textbox = self.__driver.find_element(by='id', value='audio-response')
+        self._random_sleep()
+        response_textbox.send_keys(recognized_text)
+
+    def _random_sleep(self):
+        if self.__slow_mode:
+            time.sleep(random.randrange(1.0, 4.0))
 
     def _js_click(self, element: WebElement) -> None:
         """
@@ -164,7 +176,7 @@ class API:
             tag: str,
             locator: str,
             timeout: int,
-    ) -> any:
+    ) -> Any:
         """
         :param tag: Tag to get element by (id, class name, xpath, tag name, etc.)
         :param locator: Value of the tag (Example: tag -> id, locator -> button-id)
