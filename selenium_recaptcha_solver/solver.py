@@ -1,11 +1,12 @@
 from selenium_recaptcha_solver.exceptions import RecaptchaException
+from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import TimeoutException
 from pydub import AudioSegment
-from typing import Any
+from typing import Any, Optional
 import speech_recognition as sr
 import random
 import requests
@@ -22,10 +23,10 @@ DEFAULT_SERVICE: Service = GoogleService()
 class RecaptchaSolver:
     def __init__(self, driver: WebDriver, slow_mode: bool = False, service: Service = DEFAULT_SERVICE):
         """
-        :param driver: Selenium web driver to use to solve the Captcha
-        :param slow_mode: Sleep for brief durations between UI interactions
-        :param service: Service object to use for speech recognition (Defaults to GoogleService)
-        List of services: BingService, GoogleService, GoogleCloudService, HoundifyService, IbmService, SphinxService, WitService.
+        :param driver: Selenium web driver to use to solve the captcha
+        :param slow_mode: if ``True``, sleep for brief durations between UI interactions
+        :param service: service to use for speech recognition (defaults to ``GoogleService``).
+            See the ``services`` module for available services.
         """
 
         self.__driver = driver
@@ -36,8 +37,11 @@ class RecaptchaSolver:
         self.__service = service
 
     def click_recaptcha_v2(self, iframe: WebElement) -> None:
-        """
-        :param iframe: Iframe of Captcha to be solved
+        """Click the "I'm not a robot" checkbox and then solve a reCAPTCHA v2 challenge.
+
+        Call this method directly on web pages with an "I'm not a robot" checkbox. See <https://developers.google.com/recaptcha/docs/versions> for details of how this works.
+
+        :param iframe: web element for inline frame of reCAPTCHA to solve
         """
 
         self.__driver.switch_to.frame(iframe)
@@ -57,7 +61,7 @@ class RecaptchaSolver:
         self.__driver.switch_to.parent_frame()
 
         captcha_challenge = self._wait_for_element(
-            tag='xpath',
+            by=By.XPATH,
             locator='//iframe[@title="recaptcha challenge expires in two minutes"]',
             timeout=5,
         )
@@ -65,15 +69,18 @@ class RecaptchaSolver:
         self.solve_recaptcha_v2_challenge(iframe=captcha_challenge)
 
     def solve_recaptcha_v2_challenge(self, iframe: WebElement) -> None:
-        """
-        :param iframe: Iframe of Captcha to be solved
+        """Solve a reCAPTCHA v2 challenge that has already appeared.
+
+        Call this method directly on web pages with the "invisible reCAPTCHA" badge. See <https://developers.google.com/recaptcha/docs/versions> for details of how this works.
+
+        :param iframe: web element for inline frame of reCAPTCHA to solve
         """
 
         self.__driver.switch_to.frame(iframe)
 
         # Locate captcha audio button and click it via JavaScript
         audio_button = self._wait_for_element(
-            tag='id',
+            by=By.ID,
             locator='recaptcha-audio-button',
             timeout=10,
         )
@@ -86,7 +93,7 @@ class RecaptchaSolver:
 
         # Locate verify button and click it via JavaScript
         verify_button = self._wait_for_element(
-            tag='id',
+            by=By.ID,
             locator='recaptcha-verify-button',
             timeout=5,
         )
@@ -97,7 +104,7 @@ class RecaptchaSolver:
 
         try:
             self._wait_for_element(
-                tag='xpath',
+                by=By.XPATH,
                 locator='//div[normalize-space()="Multiple correct solutions required - please solve more."]',
                 timeout=1,
             )
@@ -106,7 +113,7 @@ class RecaptchaSolver:
 
             # Locate verify button again to avoid stale element reference and click it via JavaScript
             second_verify_button = self._wait_for_element(
-                tag='id',
+                by=By.ID,
                 locator='recaptcha-verify-button',
                 timeout=5,
             )
@@ -122,9 +129,9 @@ class RecaptchaSolver:
 
     def _solve_audio_challenge(self) -> None:
         try:
-            # Locate audio challenge download link and download it via requests in to temporary files
+            # Locate audio challenge download link
             download_link: WebElement = self._wait_for_element(
-                tag='class name',
+                by=By.CLASS_NAME,
                 locator='rc-audiochallenge-tdownload-link',
                 timeout=10,
             )
@@ -148,10 +155,10 @@ class RecaptchaSolver:
 
             f.close()
 
-        # Convert mp3 to wav format for compatibility with Google Cloud Speech-to-Text API
+        # Convert MP3 to WAV format for compatibility with speech recognizer APIs
         AudioSegment.from_mp3(mp3_file).export(wav_file, format='wav')
 
-        # Disable dynamic energy threshold to avoid failed Captcha audio transcription due to static noise
+        # Disable dynamic energy threshold to avoid failed reCAPTCHA audio transcription due to static noise
         self.__recognizer.dynamic_energy_threshold = False
 
         with sr.AudioFile(wav_file) as source:
@@ -164,7 +171,9 @@ class RecaptchaSolver:
                 raise RecaptchaException('Speech recognition API could not understand audio, try again')
 
         # Clean up all temporary files
-        self._cleanup(tmp_files)
+        for path in tmp_files:
+            if os.path.exists(path):
+                os.remove(path)
 
         # Write transcribed text to iframe's input box
         response_textbox = self.__driver.find_element(by='id', value='audio-response')
@@ -178,42 +187,30 @@ class RecaptchaSolver:
             time.sleep(random.randrange(1, 3))
 
     def _js_click(self, element: WebElement) -> None:
-        """
-        :param element: Web element to perform click on via JavaScript
+        """Perform click on given web element using JavaScript.
+
+        :param element: web element to click
         """
 
         self.__driver.execute_script('arguments[0].click();', element)
 
     def _wait_for_element(
             self,
-            tag: str,
-            locator: str,
-            timeout: int,
-    ) -> Any:
-        """
-        :param tag: Tag to get element by (id, class name, xpath, tag name, etc.)
-        :param locator: Value of the tag (Example: tag -> id, locator -> button-id)
-        :param timeout: Time to wait for element before raising TimeoutError
-        :return: Web element specified by tag and locator
-        :raises TimeoutException: If the element is not located within the desired time span
-        """
+            by: str = By.ID,
+            locator: Optional[str] = None,
+            timeout: float = 10,
+    ) -> WebElement:
+        """Try to locate web element within given duration.
 
-        element_attributes = (tag, locator)
-
-        WebDriverWait(self.__driver, timeout).until(ec.visibility_of_element_located(element_attributes))
-
-        return self.__driver.find_element(by=tag, value=locator)
-
-    @staticmethod
-    def _cleanup(paths: set) -> None:
-        """
-        :param paths: Paths to validate existence of and delete
+        :param by: strategy to use to locate element (see class `selenium.webdriver.common.by.By`)
+        :param locator: locator that identifies the element
+        :param timeout: number of seconds to wait for element before raising `TimeoutError`
+        :return: located web element
+        :raises selenium.common.exceptions.TimeoutException: if element is not located within given duration
         """
 
-        for path in paths:
-            if os.path.exists(path):
-                os.remove(path)
+        return WebDriverWait(self.__driver, timeout).until(ec.visibility_of_element_located((by, locator)))
 
 
-# Add variable for backwards compatibility
+# Add alias for backwards compatibility
 API = RecaptchaSolver

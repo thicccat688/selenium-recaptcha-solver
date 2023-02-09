@@ -1,2 +1,3 @@
-from .api import API
 from . import services
+from .exceptions import RecaptchaException
+from .solver import RecaptchaSolver

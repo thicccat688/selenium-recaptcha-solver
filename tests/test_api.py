@@ -1,6 +1,6 @@
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium_recaptcha_solver.api import API
+from selenium_recaptcha_solver.solver import API
 from selenium_stealth import stealth
 from selenium import webdriver
 import pytest
