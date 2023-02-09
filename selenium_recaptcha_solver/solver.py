@@ -29,12 +29,12 @@ class RecaptchaSolver:
             See the ``services`` module for available services.
         """
 
-        self.__driver = driver
-        self.__slow_mode = slow_mode
+        self._driver = driver
+        self._slow_mode = slow_mode
 
         # Initialise speech recognition API object
-        self.__recognizer = sr.Recognizer()
-        self.__service = service
+        self._recognizer = sr.Recognizer()
+        self._service = service
 
     def click_recaptcha_v2(self, iframe: WebElement) -> None:
         """Click the "I'm not a robot" checkbox and then solve a reCAPTCHA v2 challenge.
@@ -44,9 +44,9 @@ class RecaptchaSolver:
         :param iframe: web element for inline frame of reCAPTCHA to solve
         """
 
-        self.__driver.switch_to.frame(iframe)
+        self._driver.switch_to.frame(iframe)
 
-        checkbox = self.__driver.find_element(
+        checkbox = self._driver.find_element(
             by='id',
             value='recaptcha-anchor',
         )
@@ -58,7 +58,7 @@ class RecaptchaSolver:
         if checkbox.get_attribute('checked'):
             return
 
-        self.__driver.switch_to.parent_frame()
+        self._driver.switch_to.parent_frame()
 
         captcha_challenge = self._wait_for_element(
             by=By.XPATH,
@@ -76,7 +76,7 @@ class RecaptchaSolver:
         :param iframe: web element for inline frame of reCAPTCHA to solve
         """
 
-        self.__driver.switch_to.frame(iframe)
+        self._driver.switch_to.frame(iframe)
 
         # Locate captcha audio button and click it via JavaScript
         audio_button = self._wait_for_element(
@@ -125,7 +125,7 @@ class RecaptchaSolver:
         except TimeoutException:
             pass
 
-        self.__driver.switch_to.parent_frame()
+        self._driver.switch_to.parent_frame()
 
     def _solve_audio_challenge(self) -> None:
         try:
@@ -159,13 +159,13 @@ class RecaptchaSolver:
         AudioSegment.from_mp3(mp3_file).export(wav_file, format='wav')
 
         # Disable dynamic energy threshold to avoid failed reCAPTCHA audio transcription due to static noise
-        self.__recognizer.dynamic_energy_threshold = False
+        self._recognizer.dynamic_energy_threshold = False
 
         with sr.AudioFile(wav_file) as source:
-            audio = self.__recognizer.listen(source)
+            audio = self._recognizer.listen(source)
 
             try:
-                recognized_text = self.__service.recognize(self.__recognizer, audio)
+                recognized_text = self._service.recognize(self._recognizer, audio)
 
             except sr.UnknownValueError:
                 raise RecaptchaException('Speech recognition API could not understand audio, try again')
@@ -176,14 +176,14 @@ class RecaptchaSolver:
                 os.remove(path)
 
         # Write transcribed text to iframe's input box
-        response_textbox = self.__driver.find_element(by='id', value='audio-response')
+        response_textbox = self._driver.find_element(by='id', value='audio-response')
 
         self._random_sleep()
 
         response_textbox.send_keys(recognized_text)
 
     def _random_sleep(self) -> None:
-        if self.__slow_mode:
+        if self._slow_mode:
             time.sleep(random.randrange(1, 3))
 
     def _js_click(self, element: WebElement) -> None:
@@ -192,7 +192,7 @@ class RecaptchaSolver:
         :param element: web element to click
         """
 
-        self.__driver.execute_script('arguments[0].click();', element)
+        self._driver.execute_script('arguments[0].click();', element)
 
     def _wait_for_element(
             self,
@@ -209,7 +209,7 @@ class RecaptchaSolver:
         :raises selenium.common.exceptions.TimeoutException: if element is not located within given duration
         """
 
-        return WebDriverWait(self.__driver, timeout).until(ec.visibility_of_element_located((by, locator)))
+        return WebDriverWait(self._driver, timeout).until(ec.visibility_of_element_located((by, locator)))
 
 
 # Add alias for backwards compatibility
