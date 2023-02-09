@@ -30,7 +30,7 @@ class RecaptchaSolver:
         :param service: service to use for speech recognition (defaults to ``GoogleService``).
             See the ``services`` module for available services.
         :param delay_config: if set, use the given configuration for delays between UI interactions.
-            See :class:`DelayConfig`, and also :class:`StandardDelayConfig`, which provides a standard implementation that should work in most cases.
+            See :class:`DelayConfig`, and also :class:`StandardDelayConfig`, which provides a standard implementation that should work in many cases.
         """
 
         self._driver = driver
@@ -46,6 +46,7 @@ class RecaptchaSolver:
         Call this method directly on web pages with an "I'm not a robot" checkbox. See <https://developers.google.com/recaptcha/docs/versions> for details of how this works.
 
         :param iframe: web element for inline frame of reCAPTCHA to solve
+        :raises selenium.common.exceptions.TimeoutException: if a timeout occurred while waiting
         """
 
         self._driver.switch_to.frame(iframe)
@@ -82,6 +83,7 @@ class RecaptchaSolver:
         Call this method directly on web pages with the "invisible reCAPTCHA" badge. See <https://developers.google.com/recaptcha/docs/versions> for details of how this works.
 
         :param iframe: web element for inline frame of reCAPTCHA to solve
+        :raises selenium.common.exceptions.TimeoutException: if a timeout occurred while waiting
         """
 
         self._driver.switch_to.frame(iframe)
