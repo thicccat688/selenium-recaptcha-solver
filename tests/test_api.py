@@ -1,6 +1,6 @@
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium_recaptcha_solver.solver import API
+from selenium_recaptcha_solver import RecaptchaSolver, StandardDelayConfig
 from selenium_stealth import stealth
 from selenium import webdriver
 import pytest
@@ -34,7 +34,7 @@ stealth(
 )
 
 
-solver = API(driver=test_driver)
+solver = RecaptchaSolver(driver=test_driver, delay_config=StandardDelayConfig())
 
 
 def test_solver():
