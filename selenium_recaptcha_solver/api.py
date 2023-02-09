@@ -14,9 +14,14 @@ import tempfile
 import time
 import os
 
+from .services import Service, GoogleService
+
+
+DEFAULT_SERVICE: Service = GoogleService()
+
 
 class API:
-    def __init__(self, driver: WebDriver, slow_mode = False, google_credentials_json: Optional[str] = None):
+    def __init__(self, driver: WebDriver, slow_mode = False, service: Service = DEFAULT_SERVICE):
         """
         :param driver: Selenium web driver to use to solve the Captcha
         :param slow_mode: Sleep for brief durations between UI interactions
@@ -28,7 +33,7 @@ class API:
 
         # Initialise speech recognition API object
         self.__recognizer = sr.Recognizer()
-        self.__google_credentials_json = google_credentials_json
+        self.__service = service
 
     def click_recaptcha_v2(self, iframe: WebElement) -> None:
         """
@@ -148,7 +153,7 @@ class API:
             audio = self.__recognizer.listen(source)
 
             try:
-                recognized_text = self.__recognizer.recognize_google_cloud(audio, credentials_json=self.__google_credentials_json)
+                recognized_text = self.__service.recognize(self.__recognizer)
             except sr.UnknownValueError:
                 raise RecaptchaException('Cloud Speech-to-Text API could not understand audio, try again')
 
