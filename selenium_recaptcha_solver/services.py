@@ -12,15 +12,53 @@ class Service(ABC):
         pass
 
     @abstractmethod
-    def recognize(self, recognizer: sr.Recognizer, audio: AudioData) -> Any:
+    def recognize(self, recognizer: sr.Recognizer, audio_data: AudioData) -> Any:
         """Perform speech recognition on the given audio data using the given recognizer."""
         pass
 
 
-class BingService(Service):
-    """Service for Microsoft Bing Speech API.
+class AmazonService(Service):
+    """Service for Amazon Transcribe.
 
-    See docs for `speech_recognition.Recognizer.recognize_bing` for more information on credentials.
+    See docs for `speech_recognition.Recognizer.recognize_amazon` for details on congfiguration.
+    """
+
+    def __init__(
+        self,
+        access_key_id: Optional[Any] = None,
+        secret_access_key: Optional[Any] = None,
+    ) -> None:
+        self.access_key_id = access_key_id
+        self.secret_access_key = secret_access_key
+
+    def recognize(self, recognizer: sr.Recognizer, audio_data: AudioData) -> Any:
+        return recognizer.recognize_amazon(
+            audio_data,
+            access_key_id=self.access_key_id,
+            secret_access_key=self.secret_access_key,
+        )
+
+
+class AssemblyAIService(Service):
+    """Service for AssemblyAI STT.
+
+    See docs for `speech_recognition.Recognizer.recognize_assemblyai` for details on congfiguration.
+    """
+
+    def __init__(
+        self,
+        api_token: Any,
+    ) -> None:
+        self.api_token = api_token
+
+    def recognize(self, recognizer: sr.Recognizer, audio_data: AudioData) -> Any:
+        return recognizer.recognize_assemblyai(audio_data, api_token=self.api_token)
+
+
+class AzureService(Service):
+    """Service for Microsoft Azure Speech API.
+
+    See docs for `speech_recognition.Recognizer.recognize_azure` for details on congfiguration.
     """
 
     def __init__(
@@ -29,14 +67,30 @@ class BingService(Service):
     ) -> None:
         self.key = key
 
-    def recognize(self, recognizer: sr.Recognizer, audio: AudioData) -> Any:
-        return recognizer.recognize_bing(audio, key=self.key)
+    def recognize(self, recognizer: sr.Recognizer, audio_data: AudioData) -> Any:
+        return recognizer.recognize_azure(audio_data, key=self.key)
+
+
+class BingService(Service):
+    """Service for Microsoft Bing Speech API.
+
+    See docs for `speech_recognition.Recognizer.recognize_bing` for details on congfiguration.
+    """
+
+    def __init__(
+        self,
+        key: Any,
+    ) -> None:
+        self.key = key
+
+    def recognize(self, recognizer: sr.Recognizer, audio_data: AudioData) -> Any:
+        return recognizer.recognize_bing(audio_data, key=self.key)
 
 
 class GoogleService(Service):
     """Service for Google Speech Recognition API.
 
-    See docs for `speech_recognition.Recognizer.recognize_google` for more information on credentials.
+    See docs for `speech_recognition.Recognizer.recognize_google` for details on congfiguration.
     """
 
     def __init__(
@@ -45,14 +99,14 @@ class GoogleService(Service):
     ) -> None:
         self.key = key
 
-    def recognize(self, recognizer: sr.Recognizer, audio: AudioData) -> Any:
-        return recognizer.recognize_google(audio, key=self.key)
+    def recognize(self, recognizer: sr.Recognizer, audio_data: AudioData) -> Any:
+        return recognizer.recognize_google(audio_data, key=self.key)
 
 
 class GoogleCloudService(Service):
     """Service for Google Cloud Speech API.
 
-    See docs for `speech_recognition.Recognizer.recognize_google_cloud` for more information on credentials.
+    See docs for `speech_recognition.Recognizer.recognize_google_cloud` for details on congfiguration.
     """
 
     def __init__(
@@ -61,16 +115,16 @@ class GoogleCloudService(Service):
     ) -> None:
         self.credentials_json = credentials_json
 
-    def recognize(self, recognizer: sr.Recognizer, audio: AudioData) -> Any:
+    def recognize(self, recognizer: sr.Recognizer, audio_data: AudioData) -> Any:
         return recognizer.recognize_google_cloud(
-            audio, credentials_json=self.credentials_json
+            audio_data, credentials_json=self.credentials_json
         )
 
 
 class HoundifyService(Service):
     """Service for Houndify API.
 
-    See docs for `speech_recognition.Recognizer.recognize_houndify` for more information on credentials.
+    See docs for `speech_recognition.Recognizer.recognize_houndify` for details on congfiguration.
     """
 
     def __init__(
@@ -81,16 +135,16 @@ class HoundifyService(Service):
         self.client_id = client_id
         self.client_key = client_key
 
-    def recognize(self, recognizer: sr.Recognizer, audio: AudioData) -> Any:
+    def recognize(self, recognizer: sr.Recognizer, audio_data: AudioData) -> Any:
         return recognizer.recognize_houndify(
-            audio, client_id=self.client_id, client_key=self.client_key
+            audio_data, client_id=self.client_id, client_key=self.client_key
         )
 
 
 class IbmService(Service):
     """Service for IBM Speech to Text API.
 
-    See docs for `speech_recognition.Recognizer.recognize_google_cloud` for more information on credentials.
+    See docs for `speech_recognition.Recognizer.recognize_ibm` for details on congfiguration.
     """
 
     def __init__(
@@ -99,14 +153,34 @@ class IbmService(Service):
     ) -> None:
         self.key = key
 
-    def recognize(self, recognizer: sr.Recognizer, audio: AudioData) -> Any:
-        return recognizer.recognize_ibm(audio, key=self.key)
+    def recognize(self, recognizer: sr.Recognizer, audio_data: AudioData) -> Any:
+        return recognizer.recognize_ibm(audio_data, key=self.key)
+
+
+class LexService(Service):
+    """Service for Amazon Lex API.
+
+    See docs for `speech_recognition.Recognizer.recognize_lex` for details on congfiguration.
+    """
+
+    def __init__(
+        self,
+        access_key_id: Optional[Any] = None,
+        secret_access_key: Optional[Any] = None,
+    ) -> None:
+        self.client_id = access_key_id
+        self.client_key = secret_access_key
+
+    def recognize(self, recognizer: sr.Recognizer, audio_data: AudioData) -> Any:
+        return recognizer.recognize_lex(
+            audio_data, client_id=self.client_id, client_key=self.client_key
+        )
 
 
 class SphinxService(Service):
     """Service for CMU Sphinx.
 
-    See docs for `speech_recognition.Recognizer.recognize_sphinx` for more information on credentials.
+    See docs for `speech_recognition.Recognizer.recognize_sphinx` for details on congfiguration.
     """
 
     def __init__(
@@ -115,14 +189,63 @@ class SphinxService(Service):
     ) -> None:
         self.grammar = grammar
 
-    def recognize(self, recognizer: sr.Recognizer, audio: AudioData) -> Any:
-        return recognizer.recognize_sphinx(audio, grammar=self.grammar)
+    def recognize(self, recognizer: sr.Recognizer, audio_data: AudioData) -> Any:
+        return recognizer.recognize_sphinx(audio_data, grammar=self.grammar)
+
+
+class TensorFlowService(Service):
+    """Service for TensorFlow.
+
+    See docs for `speech_recognition.Recognizer.recognize_tensorflow` for details on congfiguration.
+    """
+
+    def __init__(
+        self,
+        tensor_graph: str,
+    ) -> None:
+        self.tensor_graph = tensor_graph
+
+    def recognize(self, recognizer: sr.Recognizer, audio_data: AudioData) -> Any:
+        return recognizer.recognize_tensorflow(
+            audio_data, tensor_graph=self.tensor_graph
+        )
+
+
+class VoskService(Service):
+    """Service for Vosk.
+
+    See docs for `speech_recognition.Recognizer.recognize_vosk` for details on congfiguration.
+    """
+
+    def __init__(
+        self,
+    ) -> None:
+        pass
+
+    def recognize(self, recognizer: sr.Recognizer, audio_data: AudioData) -> Any:
+        return recognizer.recognize_vosk(audio_data)
+
+
+class Whisperervice(Service):
+    """Service for Whisper.
+
+    See docs for `speech_recognition.Recognizer.recognize_whisper` for details on congfiguration.
+    """
+
+    def __init__(
+        self,
+        model: str = "base",
+    ) -> None:
+        self.model = model
+
+    def recognize(self, recognizer: sr.Recognizer, audio_data: AudioData) -> Any:
+        return recognizer.recognize_whisper(audio_data, model=self.model)
 
 
 class WitService(Service):
     """Service for Wit.ai API.
 
-    See docs for `speech_recognition.Recognizer.recognize_wit` for more information on credentials.
+    See docs for `speech_recognition.Recognizer.recognize_wit` for details on congfiguration.
     """
 
     def __init__(
@@ -131,5 +254,5 @@ class WitService(Service):
     ) -> None:
         self.key = key
 
-    def recognize(self, recognizer: sr.Recognizer, audio: AudioData) -> Any:
-        return recognizer.recognize_wit(audio, key=self.key)
+    def recognize(self, recognizer: sr.Recognizer, audio_data: AudioData) -> Any:
+        return recognizer.recognize_wit(audio_data, key=self.key)
