@@ -1,5 +1,3 @@
-from typing import Any, Optional
-
 from selenium_recaptcha_solver.exceptions import RecaptchaException
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.remote.webelement import WebElement
@@ -7,6 +5,7 @@ from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import TimeoutException
 from pydub import AudioSegment
+from typing import Any
 import speech_recognition as sr
 import random
 import requests
@@ -20,12 +19,13 @@ from .services import Service, GoogleService
 DEFAULT_SERVICE: Service = GoogleService()
 
 
-class API:
-    def __init__(self, driver: WebDriver, slow_mode = False, service: Service = DEFAULT_SERVICE):
+class RecaptchaSolver:
+    def __init__(self, driver: WebDriver, slow_mode: bool = False, service: Service = DEFAULT_SERVICE):
         """
         :param driver: Selenium web driver to use to solve the Captcha
         :param slow_mode: Sleep for brief durations between UI interactions
-        :param google_credentials_json: credentials for Google Cloud Speech-to-Text API; generic credentials are already provided, but can be revoked by Google at any time; you can set up your own service at https://cloud.google.com/speech-to-text)
+        :param service: Service object to use for speech recognition (Defaults to GoogleService)
+        List of services: BingService, GoogleService, GoogleCloudService, HoundifyService, IbmService, SphinxService, WitService.
         """
 
         self.__driver = driver
@@ -48,6 +48,7 @@ class API:
         )
 
         self._random_sleep()
+
         self._js_click(checkbox)
 
         if checkbox.get_attribute('checked'):
@@ -78,6 +79,7 @@ class API:
         )
 
         self._random_sleep()
+
         self._js_click(audio_button)
 
         self._solve_audio_challenge()
@@ -90,6 +92,7 @@ class API:
         )
 
         self._random_sleep()
+
         self._js_click(verify_button)
 
         try:
@@ -109,6 +112,7 @@ class API:
             )
 
             self._random_sleep()
+
             self._js_click(second_verify_button)
 
         except TimeoutException:
@@ -124,6 +128,7 @@ class API:
                 locator='rc-audiochallenge-tdownload-link',
                 timeout=10,
             )
+
         except TimeoutException:
             raise RecaptchaException('Google has detected automated queries. Try again later.')
 
@@ -153,21 +158,24 @@ class API:
             audio = self.__recognizer.listen(source)
 
             try:
-                recognized_text = self.__service.recognize(self.__recognizer)
+                recognized_text = self.__service.recognize(self.__recognizer, audio)
+
             except sr.UnknownValueError:
-                raise RecaptchaException('Cloud Speech-to-Text API could not understand audio, try again')
+                raise RecaptchaException('Speech recognition API could not understand audio, try again')
 
         # Clean up all temporary files
         self._cleanup(tmp_files)
 
         # Write transcribed text to iframe's input box
         response_textbox = self.__driver.find_element(by='id', value='audio-response')
+
         self._random_sleep()
+
         response_textbox.send_keys(recognized_text)
 
-    def _random_sleep(self):
+    def _random_sleep(self) -> None:
         if self.__slow_mode:
-            time.sleep(random.randrange(1.0, 4.0))
+            time.sleep(random.randrange(1, 3))
 
     def _js_click(self, element: WebElement) -> None:
         """
@@ -199,9 +207,13 @@ class API:
     @staticmethod
     def _cleanup(paths: set) -> None:
         """
-        :param paths: Paths to validate existance of and delete
+        :param paths: Paths to validate existence of and delete
         """
 
         for path in paths:
             if os.path.exists(path):
                 os.remove(path)
+
+
+# Add variable for backwards compatibility
+API = RecaptchaSolver
