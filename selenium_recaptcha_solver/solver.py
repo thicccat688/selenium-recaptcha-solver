@@ -8,12 +8,11 @@ from selenium.common.exceptions import TimeoutException
 from pydub import AudioSegment
 from typing import Any, Optional
 import speech_recognition as sr
-import random
 import requests
 import tempfile
-import time
 import os
 
+from .delay_config import DelayConfig, StandardDelayConfig
 from .services import Service, GoogleService
 
 
@@ -21,20 +20,25 @@ DEFAULT_SERVICE: Service = GoogleService()
 
 
 class RecaptchaSolver:
-    def __init__(self, driver: WebDriver, slow_mode: bool = False, service: Service = DEFAULT_SERVICE):
+    def __init__(self,
+        driver: WebDriver,
+        service: Service = DEFAULT_SERVICE,
+        delay_config: Optional[DelayConfig] = None,
+    ):
         """
         :param driver: Selenium web driver to use to solve the captcha
-        :param slow_mode: if ``True``, sleep for brief durations between UI interactions
         :param service: service to use for speech recognition (defaults to ``GoogleService``).
             See the ``services`` module for available services.
+        :param delay_config: if set, use the given configuration for delays between UI interactions.
+            See :class:`DelayConfig`, and also :class:`StandardDelayConfig`, which provides a standard implementation that should work in most cases.
         """
 
         self._driver = driver
-        self._slow_mode = slow_mode
+        self._service = service
+        self._delay_config = delay_config
 
         # Initialise speech recognition API object
         self._recognizer = sr.Recognizer()
-        self._service = service
 
     def click_recaptcha_v2(self, iframe: WebElement) -> None:
         """Click the "I'm not a robot" checkbox and then solve a reCAPTCHA v2 challenge.
@@ -51,9 +55,13 @@ class RecaptchaSolver:
             value='recaptcha-anchor',
         )
 
-        self._random_sleep()
+        if self._delay_config:
+            self._delay_config.delay_before_click_checkbox()
 
         self._js_click(checkbox)
+
+        if self._delay_config:
+            self._delay_config.delay_after_click_checkbox()
 
         if checkbox.get_attribute('checked'):
             return
@@ -85,9 +93,13 @@ class RecaptchaSolver:
             timeout=10,
         )
 
-        self._random_sleep()
+        if self._delay_config:
+            self._delay_config.delay_before_click_audio_button()
 
         self._js_click(audio_button)
+
+        if self._delay_config:
+            self._delay_config.delay_after_click_audio_button()
 
         self._solve_audio_challenge()
 
@@ -98,9 +110,13 @@ class RecaptchaSolver:
             timeout=5,
         )
 
-        self._random_sleep()
+        if self._delay_config:
+            self._delay_config.delay_before_click_verify_button()
 
         self._js_click(verify_button)
+
+        if self._delay_config:
+            self._delay_config.delay_after_click_verify_button()
 
         try:
             self._wait_for_element(
@@ -118,9 +134,13 @@ class RecaptchaSolver:
                 timeout=5,
             )
 
-            self._random_sleep()
+            if self._delay_config:
+                self._delay_config.delay_before_click_verify_button()
 
             self._js_click(second_verify_button)
+
+            if self._delay_config:
+                self._delay_config.delay_after_click_verify_button()
 
         except TimeoutException:
             pass
@@ -178,13 +198,13 @@ class RecaptchaSolver:
         # Write transcribed text to iframe's input box
         response_textbox = self._driver.find_element(by='id', value='audio-response')
 
-        self._random_sleep()
+        if self._delay_config:
+            self._delay_config.delay_before_type_answer()
 
         response_textbox.send_keys(recognized_text)
 
-    def _random_sleep(self) -> None:
-        if self._slow_mode:
-            time.sleep(random.randrange(1, 3))
+        if self._delay_config:
+            self._delay_config.delay_after_type_answer()
 
     def _js_click(self, element: WebElement) -> None:
         """Perform click on given web element using JavaScript.
@@ -195,10 +215,10 @@ class RecaptchaSolver:
         self._driver.execute_script('arguments[0].click();', element)
 
     def _wait_for_element(
-            self,
-            by: str = By.ID,
-            locator: Optional[str] = None,
-            timeout: float = 10,
+        self,
+        by: str = By.ID,
+        locator: Optional[str] = None,
+        timeout: float = 10,
     ) -> WebElement:
         """Try to locate web element within given duration.
 
