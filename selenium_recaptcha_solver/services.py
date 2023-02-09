@@ -74,14 +74,12 @@ class IbmService(Service):
 class SphinxService(Service):
     def __init__(
         self,
-        language: str = None,
         grammar: Any = None,
     ) -> None:
-        self.language = language
         self.grammar = grammar
 
     def recognize(self, recognizer: sr.Recognizer, audio: AudioData) -> Any:
-        return recognizer.recognize_sphinx(audio, language=self.language, grammar=self.grammar)
+        return recognizer.recognize_sphinx(audio, grammar=self.grammar)
 
 
 class WitService(Service):
