@@ -18,7 +18,8 @@ class Service(ABC):
 
 
 class AmazonService(Service):
-    """Service for Amazon Transcribe.
+    """
+    Service for Amazon Transcribe.
 
     See docs for `speech_recognition.Recognizer.recognize_amazon` for details on congfiguration.
     """
@@ -40,7 +41,8 @@ class AmazonService(Service):
 
 
 class AssemblyAIService(Service):
-    """Service for AssemblyAI STT.
+    """
+    Service for AssemblyAI STT.
 
     See docs for `speech_recognition.Recognizer.recognize_assemblyai` for details on congfiguration.
     """
@@ -56,7 +58,8 @@ class AssemblyAIService(Service):
 
 
 class AzureService(Service):
-    """Service for Microsoft Azure Speech API.
+    """
+    Service for Microsoft Azure Speech API.
 
     See docs for `speech_recognition.Recognizer.recognize_azure` for details on congfiguration.
     """
@@ -72,7 +75,8 @@ class AzureService(Service):
 
 
 class BingService(Service):
-    """Service for Microsoft Bing Speech API.
+    """
+    Service for Microsoft Bing Speech API.
 
     See docs for `speech_recognition.Recognizer.recognize_bing` for details on congfiguration.
     """
@@ -88,7 +92,8 @@ class BingService(Service):
 
 
 class GoogleService(Service):
-    """Service for Google Speech Recognition API.
+    """
+    Service for Google Speech Recognition API.
 
     See docs for `speech_recognition.Recognizer.recognize_google` for details on congfiguration.
     """
@@ -104,7 +109,8 @@ class GoogleService(Service):
 
 
 class GoogleCloudService(Service):
-    """Service for Google Cloud Speech API.
+    """
+    Service for Google Cloud Speech API.
 
     See docs for `speech_recognition.Recognizer.recognize_google_cloud` for details on congfiguration.
     """
@@ -122,7 +128,8 @@ class GoogleCloudService(Service):
 
 
 class HoundifyService(Service):
-    """Service for Houndify API.
+    """
+    Service for Houndify API.
 
     See docs for `speech_recognition.Recognizer.recognize_houndify` for details on congfiguration.
     """
@@ -142,7 +149,8 @@ class HoundifyService(Service):
 
 
 class IbmService(Service):
-    """Service for IBM Speech to Text API.
+    """
+    Service for IBM Speech to Text API.
 
     See docs for `speech_recognition.Recognizer.recognize_ibm` for details on congfiguration.
     """
@@ -158,18 +166,19 @@ class IbmService(Service):
 
 
 class LexService(Service):
-    """Service for Amazon Lex API.
+    """
+    Service for Amazon Lex API.
 
     See docs for `speech_recognition.Recognizer.recognize_lex` for details on congfiguration.
     """
 
     def __init__(
-            self,
-            bot_name: Any,
-            bot_alias: Any,
-            user_id: Any,
-            access_key_id: Optional[Any] = None,
-            secret_access_key: Optional[Any] = None,
+        self,
+        bot_name: Any,
+        bot_alias: Any,
+        user_id: Any,
+        access_key_id: Optional[Any] = None,
+        secret_access_key: Optional[Any] = None,
     ) -> None:
         self.bot_name = bot_name
         self.bot_alias = bot_alias

@@ -212,7 +212,8 @@ class RecaptchaSolver:
             self._delay_config.delay_after_type_answer()
 
     def _js_click(self, element: WebElement) -> None:
-        """Perform click on given web element using JavaScript.
+        """
+        Perform click on given web element using JavaScript.
 
         :param element: web element to click
         """
@@ -225,7 +226,8 @@ class RecaptchaSolver:
         locator: Optional[str] = None,
         timeout: float = 10,
     ) -> WebElement:
-        """Try to locate web element within given duration.
+        """
+        Try to locate web element within given duration.
 
         :param by: strategy to use to locate element (see class `selenium.webdriver.common.by.By`)
         :param locator: locator that identifies the element
