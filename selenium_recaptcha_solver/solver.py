@@ -6,7 +6,7 @@ from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import TimeoutException
 from pydub import AudioSegment
-from typing import Any, Optional
+from typing import Optional
 import speech_recognition as sr
 import requests
 import tempfile
@@ -20,10 +20,11 @@ DEFAULT_SERVICE: Service = GoogleService()
 
 
 class RecaptchaSolver:
-    def __init__(self,
-        driver: WebDriver,
-        service: Service = DEFAULT_SERVICE,
-        delay_config: Optional[DelayConfig] = None,
+    def __init__(
+            self,
+            driver: WebDriver,
+            service: Service = DEFAULT_SERVICE,
+            delay_config: Optional[DelayConfig] = None,
     ):
         """
         :param driver: Selenium web driver to use to solve the captcha
@@ -41,7 +42,8 @@ class RecaptchaSolver:
         self._recognizer = sr.Recognizer()
 
     def click_recaptcha_v2(self, iframe: WebElement) -> None:
-        """Click the "I'm not a robot" checkbox and then solve a reCAPTCHA v2 challenge.
+        """
+        Click the "I'm not a robot" checkbox and then solve a reCAPTCHA v2 challenge.
 
         Call this method directly on web pages with an "I'm not a robot" checkbox. See <https://developers.google.com/recaptcha/docs/versions> for details of how this works.
 
@@ -78,7 +80,8 @@ class RecaptchaSolver:
         self.solve_recaptcha_v2_challenge(iframe=captcha_challenge)
 
     def solve_recaptcha_v2_challenge(self, iframe: WebElement) -> None:
-        """Solve a reCAPTCHA v2 challenge that has already appeared.
+        """
+        Solve a reCAPTCHA v2 challenge that has already appeared.
 
         Call this method directly on web pages with the "invisible reCAPTCHA" badge. See <https://developers.google.com/recaptcha/docs/versions> for details of how this works.
 

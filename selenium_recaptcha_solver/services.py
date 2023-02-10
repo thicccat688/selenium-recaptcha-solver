@@ -164,21 +164,33 @@ class LexService(Service):
     """
 
     def __init__(
-        self,
-        access_key_id: Optional[Any] = None,
-        secret_access_key: Optional[Any] = None,
+            self,
+            bot_name: Any,
+            bot_alias: Any,
+            user_id: Any,
+            access_key_id: Optional[Any] = None,
+            secret_access_key: Optional[Any] = None,
     ) -> None:
-        self.client_id = access_key_id
-        self.client_key = secret_access_key
+        self.bot_name = bot_name
+        self.bot_alias = bot_alias
+        self.user_id = user_id
+        self.access_key_id = access_key_id
+        self.secret_access_key = secret_access_key
 
     def recognize(self, recognizer: sr.Recognizer, audio_data: AudioData) -> Any:
         return recognizer.recognize_lex(
-            audio_data, client_id=self.client_id, client_key=self.client_key
+            audio_data,
+            bot_name=self.bot_name,
+            bot_alias=self.bot_alias,
+            user_id=self.user_id,
+            access_key_id=self.access_key_id,
+            secret_access_key=self.secret_access_key,
         )
 
 
 class SphinxService(Service):
-    """Service for CMU Sphinx.
+    """
+    Service for CMU Sphinx.
 
     See docs for `speech_recognition.Recognizer.recognize_sphinx` for details on congfiguration.
     """
@@ -194,7 +206,8 @@ class SphinxService(Service):
 
 
 class TensorFlowService(Service):
-    """Service for TensorFlow.
+    """
+    Service for TensorFlow.
 
     See docs for `speech_recognition.Recognizer.recognize_tensorflow` for details on congfiguration.
     """
@@ -212,7 +225,8 @@ class TensorFlowService(Service):
 
 
 class VoskService(Service):
-    """Service for Vosk.
+    """
+    Service for Vosk.
 
     See docs for `speech_recognition.Recognizer.recognize_vosk` for details on congfiguration.
     """
@@ -226,8 +240,9 @@ class VoskService(Service):
         return recognizer.recognize_vosk(audio_data)
 
 
-class Whisperervice(Service):
-    """Service for Whisper.
+class WhisperService(Service):
+    """
+    Service for Whisper.
 
     See docs for `speech_recognition.Recognizer.recognize_whisper` for details on congfiguration.
     """
@@ -243,7 +258,8 @@ class Whisperervice(Service):
 
 
 class WitService(Service):
-    """Service for Wit.ai API.
+    """
+    Service for Wit.ai API.
 
     See docs for `speech_recognition.Recognizer.recognize_wit` for details on congfiguration.
     """
