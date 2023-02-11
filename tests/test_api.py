@@ -34,7 +34,7 @@ stealth(
 )
 
 
-solver = RecaptchaSolver(driver=test_driver)
+solver = RecaptchaSolver(driver=test_driver, delay_config=StandardDelayConfig())
 
 
 def test_solver():
