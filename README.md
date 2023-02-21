@@ -36,7 +36,7 @@ python -m pip install selenium-recaptcha-solver
 ## Usage
 
 ```python
-from selenium_recaptcha_solver import API
+from selenium_recaptcha_solver import RecaptchaSolver
 import undetected_chromedriver as webdriver
 
 
@@ -52,7 +52,7 @@ options.add_argument(f'--user-agent={test_ua}')
 driver = webdriver.Chrome(options=options)
 
 # Create API object and bind it to your webdriver
-api_client = API(driver=driver)
+api_client = RecaptchaSolver(driver=driver)
 
 # Fetch random web page
 driver.get('https://foo.bar.com')
