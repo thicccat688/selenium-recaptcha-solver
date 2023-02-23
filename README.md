@@ -2,7 +2,7 @@
 
 You can use this package to solve ReCAPTCHA challenges with selenium.
 
-It supports single-step and multi-step audio solving for ReCAPTCHA V2.
+It supports single-step and multi-step audio solving for ReCAPTCHA V2 with >90% success rate.
 
 Please use this package responsibly and for non-exploitative ends.
 
