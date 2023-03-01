@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='selenium-recaptcha-solver',
-    version='1.2.3',
+    version='1.3.0',
     license='MIT',
     author='Tomás Perestrelo',
     author_email='tomasperestrelo21@gmail.com',

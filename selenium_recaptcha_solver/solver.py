@@ -1,4 +1,5 @@
 from selenium_recaptcha_solver.exceptions import RecaptchaException
+from selenium_recaptcha_solver.constants import CONSTANTS
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.remote.webelement import WebElement
@@ -7,11 +8,13 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import TimeoutException
 from pydub import AudioSegment
 from typing import Optional
+from urllib.parse import urlparse
 import speech_recognition as sr
 import requests
 import tempfile
 import random
 import time
+import json
 import os
 
 from .delay_config import DelayConfig, StandardDelayConfig
@@ -152,6 +155,18 @@ class RecaptchaSolver:
         except TimeoutException:
             pass
 
+        print(self._driver.page_source)
+
+        token = self._wait_for_element(
+            by=By.ID,
+            locator='recaptcha-token',
+            timeout=5,
+        )
+
+        print(token.get_attribute('value'))
+
+        self._save_recaptcha_token(token.get_attribute('value'))
+
         self._driver.switch_to.parent_frame()
 
     def _solve_audio_challenge(self) -> None:
@@ -239,6 +254,50 @@ class RecaptchaSolver:
         """
 
         return WebDriverWait(self._driver, timeout).until(ec.visibility_of_element_located((by, locator)))
+
+    def _inject_recaptcha_token(self) -> None:
+        """
+        Searches for ReCAPTCHA token in JSON file and injects it in to ReCAPTCHA form
+        """
+
+        with open(CONSTANTS.TOKENS_FILE_PATH, 'r') as f:
+            tokens = json.load(f)
+
+        domain = urlparse(self._driver.current_url).netloc
+
+        token = tokens.get(domain)
+
+        if not token:
+            return
+
+        if token['expiry'] < int(time.time()):
+            del tokens[domain]
+
+            return
+
+        self._driver.execute_script(f"document.getElementById('recaptcha-token').value = {token['value']}")
+
+    def _save_recaptcha_token(self, token: str) -> None:
+        """
+        Saves ReCAPTCHA token to inject it later
+        :param token: ReCAPTCHA token to save to file for injection
+        """
+
+        with open(CONSTANTS.TOKENS_FILE_PATH, 'r') as f:
+            tokens = json.load(f)
+
+        domain = urlparse(self._driver.current_url).netloc
+
+        if tokens.get(domain):
+            return
+
+        tokens[domain] = {
+            'value': token,
+            'expiry': int(time.time()) + CONSTANTS.RECAPTCHA_TOKEN_EXPIRY_SECONDS,
+        }
+
+        with open(CONSTANTS.TOKENS_FILE_PATH, 'w') as f:
+            json.dump(tokens, f)
 
     @staticmethod
     def _human_type(element: WebElement, text: str) -> None:
