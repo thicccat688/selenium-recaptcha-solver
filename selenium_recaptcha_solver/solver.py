@@ -10,6 +10,8 @@ from typing import Optional
 import speech_recognition as sr
 import requests
 import tempfile
+import random
+import time
 import os
 
 from .delay_config import DelayConfig, StandardDelayConfig
@@ -206,7 +208,7 @@ class RecaptchaSolver:
         if self._delay_config:
             self._delay_config.delay_before_type_answer()
 
-        response_textbox.send_keys(recognized_text)
+        self._human_type(element=response_textbox, text=recognized_text)
 
         if self._delay_config:
             self._delay_config.delay_after_type_answer()
@@ -237,6 +239,19 @@ class RecaptchaSolver:
         """
 
         return WebDriverWait(self._driver, timeout).until(ec.visibility_of_element_located((by, locator)))
+
+    @staticmethod
+    def _human_type(element: WebElement, text: str) -> None:
+        """
+        Types in a way reminiscent of a human, with a random delay in between 50ms to 100ms for every character
+        :param element: Input element to type text to
+        :param text: Input to be typed
+        """
+
+        for c in text:
+            element.send_keys(c)
+
+            time.sleep(random.uniform(0.05, 0.1))
 
 
 # Add alias for backwards compatibility
