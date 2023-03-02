@@ -216,7 +216,7 @@ class RecaptchaSolver:
                 os.remove(path)
 
         # Write transcribed text to iframe's input box
-        response_textbox = self._driver.find_element(by='id', value='audio-response')
+        response_textbox = self._driver.find_element(By.ID, 'audio-response')
 
         if self._delay_config:
             self._delay_config.delay_before_type_answer()
@@ -262,7 +262,13 @@ class RecaptchaSolver:
             return False
 
         with open(CONSTANTS.TOKENS_FILE_PATH, 'r') as f:
-            tokens = json.load(f)
+            try:
+                tokens = json.load(f)
+
+            except json.decoder.JSONDecodeError:
+                os.remove(CONSTANTS.TOKENS_FILE_PATH)
+
+                raise ValueError('Tampered tokens.json file detected. Deleting it to make it work again.')
 
         domain = urlparse(self._driver.current_url).netloc
 
@@ -279,9 +285,16 @@ class RecaptchaSolver:
 
             return False
 
+        self._driver.execute_script(f"document.getElementById('recaptcha-token').value = '{token['value']}'")
+
         self._driver.switch_to.parent_frame()
 
-        self._driver.execute_script(f"document.getElementById('g-recaptcha-response').innerText = '{token['value']}'")
+        self._driver.execute_script(
+            f"""
+            document.querySelector('form').submit = 'formData.set('g-recaptcha-response', '{token['value']}'));
+            javascript:return WebForm_OnSubmit()'
+            """
+        )
 
         return True
 

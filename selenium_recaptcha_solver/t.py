@@ -18,7 +18,7 @@ options.add_argument("--disable-extensions")
 
 test_driver = webdriver.Chrome(options=options)
 
-solver = RecaptchaSolver(driver=test_driver, delay_config=StandardDelayConfig())
+solver = RecaptchaSolver(driver=test_driver)
 
 test_driver.get('https://www.google.com/recaptcha/api2/demo')
 

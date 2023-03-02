@@ -8,7 +8,7 @@ test_ua = 'Mozilla/5.0 (Windows NT 4.0; WOW64) AppleWebKit/537.36 (KHTML, like G
 
 options = webdriver.ChromeOptions()
 
-options.add_argument("--headless")
+# options.add_argument("--headless")
 options.add_argument("--window-size=1920,1080")
 
 options.add_argument(f'--user-agent={test_ua}')
@@ -30,7 +30,7 @@ def test_solver():
 
         solver.click_recaptcha_v2(iframe=recaptcha_iframe)
 
-        test_driver.find_element(By.ID, 'recaptcha-demo-submit').click()
+        test_driver.execute_script("document.getElementById('recaptcha-demo-submit').click()")
 
         test_driver.find_element(By.XPATH, '//*[text()="Verification Success... Hooray!"]')
 
