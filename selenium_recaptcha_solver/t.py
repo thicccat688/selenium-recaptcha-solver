@@ -25,3 +25,9 @@ test_driver.get('https://www.google.com/recaptcha/api2/demo')
 recaptcha_iframe = test_driver.find_element(By.XPATH, '//iframe[@title="reCAPTCHA"]')
 
 solver.click_recaptcha_v2(iframe=recaptcha_iframe)
+
+test_driver.switch_to.parent_frame()
+
+test_driver.execute_script("document.getElementById('recaptcha-demo-submit').click()")
+
+test_driver.find_element(By.XPATH, '//*[text()="Verification Success... Hooray!"]')

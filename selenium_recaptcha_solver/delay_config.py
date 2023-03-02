@@ -40,7 +40,7 @@ class DelayConfig(ABC):
 
 
 class StandardDelayConfig(DelayConfig):
-    def __init__(self, min_delay: float = 1.0, max_delay: float = 2.0) -> None:
+    def __init__(self, min_delay: float = 0.75, max_delay: float = 1.25) -> None:
         self.min_delay = min_delay
         self.max_delay = max_delay
 

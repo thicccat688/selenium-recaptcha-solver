@@ -30,5 +30,9 @@ def test_solver():
 
         solver.click_recaptcha_v2(iframe=recaptcha_iframe)
 
+        test_driver.find_element(By.ID, 'recaptcha-demo-submit').click()
+
+        test_driver.find_element(By.XPATH, '//*[text()="Verification Success... Hooray!"]')
+
     except Exception:
         pytest.fail('Failed to automatically resolve ReCAPTCHA.')
