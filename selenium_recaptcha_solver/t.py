@@ -1,7 +1,6 @@
 from selenium_recaptcha_solver import RecaptchaSolver, StandardDelayConfig
 from selenium.webdriver.common.by import By
 import undetected_chromedriver as webdriver
-import pytest
 
 
 test_ua = 'Mozilla/5.0 (Windows NT 4.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2049.0 Safari/537.36'
@@ -19,20 +18,16 @@ options.add_argument("--disable-extensions")
 
 test_driver = webdriver.Chrome(options=options)
 
-solver = RecaptchaSolver(driver=test_driver, delay_config=StandardDelayConfig())
+solver = RecaptchaSolver(driver=test_driver)
 
+test_driver.get('https://www.google.com/recaptcha/api2/demo')
 
-def test_solver():
-    try:
-        test_driver.get('https://www.google.com/recaptcha/api2/demo')
+recaptcha_iframe = test_driver.find_element(By.XPATH, '//iframe[@title="reCAPTCHA"]')
 
-        recaptcha_iframe = test_driver.find_element(By.XPATH, '//iframe[@title="reCAPTCHA"]')
+solver.click_recaptcha_v2(iframe=recaptcha_iframe)
 
-        solver.click_recaptcha_v2(iframe=recaptcha_iframe)
+test_driver.switch_to.parent_frame()
 
-        test_driver.execute_script("document.getElementById('recaptcha-demo-submit').click()")
+test_driver.execute_script("document.getElementById('recaptcha-demo-submit').click()")
 
-        test_driver.find_element(By.XPATH, '//*[text()="Verification Success... Hooray!"]')
-
-    except Exception:
-        pytest.fail('Failed to automatically resolve ReCAPTCHA.')
+test_driver.find_element(By.XPATH, '//*[text()="Verification Success... Hooray!"]')

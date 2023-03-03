@@ -1,0 +1,3 @@
+class CONSTANTS:
+    TOKENS_FILE_PATH = 'tokens.json'
+    RECAPTCHA_TOKEN_EXPIRY_SECONDS = 120
