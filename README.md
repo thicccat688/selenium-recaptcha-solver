@@ -33,7 +33,7 @@ python -m pip install selenium-recaptcha-solver
 ```python
 from selenium_recaptcha_solver import RecaptchaSolver, StandardDelayConfig
 from selenium.webdriver.common.by import By
-import undetected_chromedriver as webdriver
+import undetected_chromedriver as webdriver  # Using an undetected webdriver is recommended, but you can still use a vanilla selenium webdriver.
 import pytest
 
 
