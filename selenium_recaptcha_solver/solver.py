@@ -78,7 +78,7 @@ class RecaptchaSolver:
 
         captcha_challenge = self._wait_for_element(
             by=By.CSS_SELECTOR,
-            locator='.g-recaptcha-bubble-arrow + div > iframe',
+            locator='iframe[src*="www.google.com/recaptcha/api2/bframe"]',
             timeout=5,
         )
 
