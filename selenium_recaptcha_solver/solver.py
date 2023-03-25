@@ -1,5 +1,4 @@
 from selenium_recaptcha_solver.exceptions import RecaptchaException
-from selenium_recaptcha_solver.constants import CONSTANTS
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.remote.webelement import WebElement
@@ -8,13 +7,11 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import TimeoutException
 from pydub import AudioSegment
 from typing import Optional
-from urllib.parse import urlparse
 import speech_recognition as sr
 import tempfile
 import requests
 import random
 import time
-import json
 import os
 
 from .delay_config import DelayConfig, StandardDelayConfig
@@ -96,12 +93,6 @@ class RecaptchaSolver:
 
         self._driver.switch_to.frame(iframe)
 
-        # Attempt to inject ReCAPTCHA token before solving
-        injected = self._inject_recaptcha_token()
-
-        if injected:
-            return
-
         # Locate captcha audio button and click it via JavaScript
         audio_button = self._wait_for_element(
             by=By.ID,
@@ -162,8 +153,6 @@ class RecaptchaSolver:
             pass
 
         token = self._driver.find_element(By.ID, 'recaptcha-token').get_attribute('value')
-
-        self._save_recaptcha_token(token)
 
         self._driver.switch_to.parent_frame()
 
@@ -252,86 +241,6 @@ class RecaptchaSolver:
         """
 
         return WebDriverWait(self._driver, timeout).until(ec.visibility_of_element_located((by, locator)))
-
-    def _inject_recaptcha_token(self) -> bool:
-        """
-        Searches for ReCAPTCHA token in tokens' JSON file and injects it in to ReCAPTCHA form
-        """
-
-        if not os.path.exists(CONSTANTS.TOKENS_FILE_PATH):
-            return False
-
-        with open(CONSTANTS.TOKENS_FILE_PATH, 'r') as f:
-            try:
-                tokens = json.load(f)
-
-            except json.decoder.JSONDecodeError:
-                os.remove(CONSTANTS.TOKENS_FILE_PATH)
-
-                raise ValueError('Tampered tokens.json file detected. Deleting it to make it work again.')
-
-        domain = urlparse(self._driver.current_url).netloc
-
-        token = tokens.get(domain)
-
-        if not token:
-            return False
-
-        if token['expiry'] < int(time.time()):
-            del tokens[domain]
-
-            with open(CONSTANTS.TOKENS_FILE_PATH, 'w') as f:
-                json.dump(tokens, f)
-
-            return False
-
-        self._driver.execute_script(f"document.getElementById('recaptcha-token').value = '{token['value']}'")
-
-        self._driver.switch_to.parent_frame()
-
-        self._driver.execute_script(
-            f"""
-            document.querySelector('form').submit = 'formData.set('g-recaptcha-response', '{token['value']}'));
-            javascript:return WebForm_OnSubmit()'
-            """
-        )
-
-        return True
-
-    def _save_recaptcha_token(self, token: str) -> None:
-        """
-        Saves ReCAPTCHA token to inject it later
-        :param token: ReCAPTCHA token to save to file for injection
-        """
-
-        domain = urlparse(self._driver.current_url).netloc
-
-        if not os.path.exists(CONSTANTS.TOKENS_FILE_PATH):
-            tokens = {
-                domain: {
-                    'value': token,
-                    'expiry': int(time.time()) + CONSTANTS.RECAPTCHA_TOKEN_EXPIRY_SECONDS,
-                }
-            }
-
-            with open(CONSTANTS.TOKENS_FILE_PATH, 'w') as f:
-                json.dump(tokens, f)
-
-            return
-
-        with open(CONSTANTS.TOKENS_FILE_PATH, 'r') as f:
-            tokens = json.load(f)
-
-        if tokens.get(domain):
-            return
-
-        tokens[domain] = {
-            'value': token,
-            'expiry': int(time.time()) + CONSTANTS.RECAPTCHA_TOKEN_EXPIRY_SECONDS,
-        }
-
-        with open(CONSTANTS.TOKENS_FILE_PATH, 'w') as f:
-            json.dump(tokens, f)
 
     @staticmethod
     def _human_type(element: WebElement, text: str) -> None:
