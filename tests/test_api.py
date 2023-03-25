@@ -32,7 +32,7 @@ def test_solver():
 
         test_driver.execute_script("document.getElementById('recaptcha-demo-submit').click()")
 
-        test_driver.find_element(By.XPATH, '//*[text()="Verification Success... Hooray!"]')
+        test_driver.find_element(By.CSS_SELECTOR, '.recaptcha-success')
 
     except Exception:
         pytest.fail('Failed to automatically resolve ReCAPTCHA.')

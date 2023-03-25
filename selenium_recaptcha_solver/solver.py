@@ -77,8 +77,8 @@ class RecaptchaSolver:
         self._driver.switch_to.parent_frame()
 
         captcha_challenge = self._wait_for_element(
-            by=By.XPATH,
-            locator='//iframe[@title="recaptcha challenge expires in two minutes"]',
+            by=By.CSS_SELECTOR,
+            locator='iframe[src*="www.google.com/recaptcha/api2/bframe"]',
             timeout=5,
         )
 
