@@ -11,6 +11,7 @@ import speech_recognition as sr
 import tempfile
 import requests
 import random
+import uuid
 import time
 import os
 
@@ -152,8 +153,6 @@ class RecaptchaSolver:
         except TimeoutException:
             pass
 
-        token = self._driver.find_element(By.ID, 'recaptcha-token').get_attribute('value')
-
         self._driver.switch_to.parent_frame()
 
     def _solve_audio_challenge(self) -> None:
@@ -171,7 +170,9 @@ class RecaptchaSolver:
         # Create temporary directory and temporary files
         tmp_dir = tempfile.gettempdir()
 
-        mp3_file, wav_file = os.path.join(tmp_dir, 'tmp.mp3'), os.path.join(tmp_dir, 'tmp.wav')
+        id_ = uuid.uuid4().hex
+
+        mp3_file, wav_file = os.path.join(tmp_dir, f'{id_}_tmp.mp3'), os.path.join(tmp_dir, f'{id_}_tmp.wav')
 
         tmp_files = {mp3_file, wav_file}
 
