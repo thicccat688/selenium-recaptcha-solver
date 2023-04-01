@@ -94,6 +94,16 @@ class RecaptchaSolver:
 
         self._driver.switch_to.frame(iframe)
 
+        # If the captcha image audio is available, locate it. Otherwise, skip to the next line of code.
+        try:
+            self._wait_for_element(
+                by=By.XPATH,
+                locator='//*[@id="recaptcha-image-button"]',
+                timeout=10,
+            ).click()
+        except TimeoutException:
+            pass
+
         # Locate captcha audio button and click it via JavaScript
         audio_button = self._wait_for_element(
             by=By.ID,
