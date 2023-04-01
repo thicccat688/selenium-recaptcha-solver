@@ -99,8 +99,9 @@ class RecaptchaSolver:
             self._wait_for_element(
                 by=By.XPATH,
                 locator='//*[@id="recaptcha-image-button"]',
-                timeout=10,
+                timeout=1,
             ).click()
+
         except TimeoutException:
             pass
 
