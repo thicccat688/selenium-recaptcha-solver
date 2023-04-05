@@ -69,7 +69,7 @@ class RecaptchaSolver:
         if self._delay_config:
             self._delay_config.delay_after_click_checkbox()
 
-        if checkbox.get_attribute('checked'):
+        if checkbox.get_attribute('aria-checked') == 'true':
             return
 
         self._driver.switch_to.parent_frame()
@@ -95,6 +95,7 @@ class RecaptchaSolver:
         self._driver.switch_to.frame(iframe)
 
         # If the captcha image audio is available, locate it. Otherwise, skip to the next line of code.
+
         try:
             self._wait_for_element(
                 by=By.XPATH,
