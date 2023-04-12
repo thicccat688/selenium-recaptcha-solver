@@ -61,9 +61,6 @@ class RecaptchaSolver:
             value='recaptcha-anchor',
         )
 
-        if self._delay_config:
-            self._delay_config.delay_before_click_checkbox()
-
         self._js_click(checkbox)
 
         if self._delay_config:
@@ -113,9 +110,6 @@ class RecaptchaSolver:
             timeout=10,
         )
 
-        if self._delay_config:
-            self._delay_config.delay_before_click_audio_button()
-
         self._js_click(audio_button)
 
         if self._delay_config:
@@ -129,9 +123,6 @@ class RecaptchaSolver:
             locator='recaptcha-verify-button',
             timeout=5,
         )
-
-        if self._delay_config:
-            self._delay_config.delay_before_click_verify_button()
 
         self._js_click(verify_button)
 
@@ -153,9 +144,6 @@ class RecaptchaSolver:
                 locator='recaptcha-verify-button',
                 timeout=5,
             )
-
-            if self._delay_config:
-                self._delay_config.delay_before_click_verify_button()
 
             self._js_click(second_verify_button)
 
@@ -220,13 +208,7 @@ class RecaptchaSolver:
         # Write transcribed text to iframe's input box
         response_textbox = self._driver.find_element(By.ID, 'audio-response')
 
-        if self._delay_config:
-            self._delay_config.delay_before_type_answer()
-
         self._human_type(element=response_textbox, text=recognized_text)
-
-        if self._delay_config:
-            self._delay_config.delay_after_type_answer()
 
     def _js_click(self, element: WebElement) -> None:
         """
