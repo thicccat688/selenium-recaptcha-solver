@@ -19,7 +19,7 @@ options.add_argument("--disable-extensions")
 
 test_driver = webdriver.Chrome(options=options)
 
-solver = RecaptchaSolver(driver=test_driver, delay_config=StandardDelayConfig(min_delay=4, max_delay=6))
+solver = RecaptchaSolver(driver=test_driver, delay_config=StandardDelayConfig())
 
 
 def test_solver():
