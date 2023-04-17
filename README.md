@@ -31,10 +31,9 @@ python -m pip install selenium-recaptcha-solver
 ## Usage example with ReCAPTCHA demo site
 
 ```python
-from selenium_recaptcha_solver import RecaptchaSolver, StandardDelayConfig
+from selenium_recaptcha_solver import RecaptchaSolver
 from selenium.webdriver.common.by import By
 import undetected_chromedriver as webdriver  # Using an undetected webdriver is recommended, but you can still use a vanilla selenium webdriver.
-import pytest
 
 
 test_ua = 'Mozilla/5.0 (Windows NT 4.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2049.0 Safari/537.36'
@@ -45,7 +44,6 @@ options.add_argument("--headless")
 options.add_argument("--window-size=1920,1080")
 
 options.add_argument(f'--user-agent={test_ua}')
-options.add_argument('--incognito')
 
 options.add_argument('--no-sandbox')
 options.add_argument("--disable-extensions")
