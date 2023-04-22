@@ -6,7 +6,7 @@ from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import TimeoutException
 from pydub import AudioSegment
-from typing import Optional
+from typing import Optional, Union
 import speech_recognition as sr
 import tempfile
 import requests
@@ -44,21 +44,25 @@ class RecaptchaSolver:
         # Initialise speech recognition API object
         self._recognizer = sr.Recognizer()
 
-    def click_recaptcha_v2(self, iframe: WebElement) -> None:
+    def click_recaptcha_v2(self, iframe: Union[WebElement, str], by_selector: Optional[str]) -> None:
         """
         Click the "I'm not a robot" checkbox and then solve a reCAPTCHA v2 challenge.
 
         Call this method directly on web pages with an "I'm not a robot" checkbox. See <https://developers.google.com/recaptcha/docs/versions> for details of how this works.
 
         :param iframe: web element for inline frame of reCAPTCHA to solve
+        :param by_selector: By selector to use to find the iframe, if ``iframe`` is a string
         :raises selenium.common.exceptions.TimeoutException: if a timeout occurred while waiting
         """
 
-        self._driver.switch_to.frame(iframe)
+        if isinstance(iframe, str):
+            WebDriverWait(self._driver, 150).until(
+                ec.frame_to_be_available_and_switch_to_it((by_selector, iframe)))
+        else:
+            self._driver.switch_to.frame(iframe)
 
-        checkbox = self._driver.find_element(
-            by='id',
-            value='recaptcha-anchor',
+        checkbox = WebDriverWait(self._driver, 150).until(
+            ec.presence_of_element_located((By.ID, 'recaptcha-anchor'))
         )
 
         self._js_click(checkbox)
@@ -165,14 +169,16 @@ class RecaptchaSolver:
             )
 
         except TimeoutException:
-            raise RecaptchaException('Google has detected automated queries. Try again later.')
+            raise RecaptchaException(
+                'Google has detected automated queries. Try again later.')
 
         # Create temporary directory and temporary files
         tmp_dir = tempfile.gettempdir()
 
         id_ = uuid.uuid4().hex
 
-        mp3_file, wav_file = os.path.join(tmp_dir, f'{id_}_tmp.mp3'), os.path.join(tmp_dir, f'{id_}_tmp.wav')
+        mp3_file, wav_file = os.path.join(
+            tmp_dir, f'{id_}_tmp.mp3'), os.path.join(tmp_dir, f'{id_}_tmp.wav')
 
         tmp_files = {mp3_file, wav_file}
 
@@ -195,10 +201,12 @@ class RecaptchaSolver:
             audio = self._recognizer.listen(source)
 
             try:
-                recognized_text = self._service.recognize(self._recognizer, audio)
+                recognized_text = self._service.recognize(
+                    self._recognizer, audio)
 
             except sr.UnknownValueError:
-                raise RecaptchaException('Speech recognition API could not understand audio, try again')
+                raise RecaptchaException(
+                    'Speech recognition API could not understand audio, try again')
 
         # Clean up all temporary files
         for path in tmp_files:
