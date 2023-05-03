@@ -1,6 +1,6 @@
 from selenium_recaptcha_solver import RecaptchaSolver, StandardDelayConfig
 from selenium.webdriver.common.by import By
-import undetected_chromedriver as webdriver
+from selenium import webdriver
 import pytest
 
 

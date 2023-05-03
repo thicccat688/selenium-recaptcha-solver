@@ -142,9 +142,6 @@ class RecaptchaSolver:
 
             self._js_click(second_verify_button)
 
-            if self._delay_config:
-                self._delay_config.delay_after_click_verify_button()
-
         except TimeoutException:
             pass
 
