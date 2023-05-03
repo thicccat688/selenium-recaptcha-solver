@@ -6,7 +6,7 @@ from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import TimeoutException
 from pydub import AudioSegment
-from typing import Optional
+from typing import Union, Optional
 import speech_recognition as sr
 import tempfile
 import requests
@@ -44,21 +44,28 @@ class RecaptchaSolver:
         # Initialise speech recognition API object
         self._recognizer = sr.Recognizer()
 
-    def click_recaptcha_v2(self, iframe: WebElement) -> None:
+    def click_recaptcha_v2(self, iframe: WebElement, by_selector: Optional[str] = None) -> None:
         """
         Click the "I'm not a robot" checkbox and then solve a reCAPTCHA v2 challenge.
 
         Call this method directly on web pages with an "I'm not a robot" checkbox. See <https://developers.google.com/recaptcha/docs/versions> for details of how this works.
 
         :param iframe: web element for inline frame of reCAPTCHA to solve
+        :param by_selector: By selector to use to find the iframe, if ``iframe`` is a string
         :raises selenium.common.exceptions.TimeoutException: if a timeout occurred while waiting
         """
 
-        self._driver.switch_to.frame(iframe)
+        if isinstance(iframe, str):
+            WebDriverWait(self._driver, 150).until(
+                ec.frame_to_be_available_and_switch_to_it((by_selector, iframe)))
 
-        checkbox = self._driver.find_element(
+        else:
+            self._driver.switch_to.frame(iframe)
+
+        checkbox = self._wait_for_element(
             by='id',
-            value='recaptcha-anchor',
+            locator='recaptcha-anchor',
+            timeout=150,
         )
 
         self._js_click(checkbox)
