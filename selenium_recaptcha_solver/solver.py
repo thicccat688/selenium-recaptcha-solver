@@ -70,11 +70,11 @@ class RecaptchaSolver:
 
         self._js_click(checkbox)
 
-        if self._delay_config:
-            self._delay_config.delay_after_click_checkbox()
-
         if checkbox.get_attribute('aria-checked') == 'true':
             return
+
+        if self._delay_config:
+            self._delay_config.delay_after_click_checkbox()
 
         self._driver.switch_to.parent_frame()
 
