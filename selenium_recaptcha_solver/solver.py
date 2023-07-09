@@ -6,7 +6,7 @@ from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import TimeoutException
 from pydub import AudioSegment
-from typing import Union, Optional
+from typing import Optional
 import speech_recognition as sr
 import tempfile
 import requests
@@ -27,12 +27,14 @@ class RecaptchaSolver:
             self,
             driver: WebDriver,
             service: Service = DEFAULT_SERVICE,
+            service_language: str = 'en-US',
             delay_config: Optional[DelayConfig] = None,
     ):
         """
         :param driver: Selenium web driver to use to solve the captcha
         :param service: service to use for speech recognition (defaults to ``GoogleService``).
             See the ``services`` module for available services.
+        :param service_language: Language to use when recognizing speech to solve reCAPTCHA challenge (en-US by default for American English recognition)
         :param delay_config: if set, use the given configuration for delays between UI interactions.
             See :class:`DelayConfig`, and also :class:`StandardDelayConfig`, which provides a standard implementation that should work in many cases.
         """
@@ -40,6 +42,7 @@ class RecaptchaSolver:
         self._driver = driver
         self._service = service
         self._delay_config = delay_config
+        self._language = service_language
 
         # Initialise speech recognition API object
         self._recognizer = sr.Recognizer()
@@ -56,7 +59,7 @@ class RecaptchaSolver:
         """
 
         if isinstance(iframe, str):
-            WebDriverWait(self._driver, 150).until(
+            WebDriverWait(self._driver, 10).until(
                 ec.frame_to_be_available_and_switch_to_it((by_selector, iframe)))
 
         else:
@@ -65,7 +68,7 @@ class RecaptchaSolver:
         checkbox = self._wait_for_element(
             by='id',
             locator='recaptcha-anchor',
-            timeout=150,
+            timeout=10,
         )
 
         self._js_click(checkbox)
@@ -92,7 +95,7 @@ class RecaptchaSolver:
 
         Call this method directly on web pages with the "invisible reCAPTCHA" badge. See <https://developers.google.com/recaptcha/docs/versions> for details of how this works.
 
-        :param iframe: web element for inline frame of reCAPTCHA to solve
+        :param iframe: Web element for inline frame of reCAPTCHA to solve
         :raises selenium.common.exceptions.TimeoutException: if a timeout occurred while waiting
         """
 
@@ -110,7 +113,7 @@ class RecaptchaSolver:
         except TimeoutException:
             pass
 
-        self._solve_audio_challenge()
+        self._solve_audio_challenge(self._language)
 
         # Locate verify button and click it via JavaScript
         verify_button = self._wait_for_element(
@@ -131,7 +134,7 @@ class RecaptchaSolver:
                 timeout=1,
             )
 
-            self._solve_audio_challenge()
+            self._solve_audio_challenge(self._language)
 
             # Locate verify button again to avoid stale element reference and click it via JavaScript
             second_verify_button = self._wait_for_element(
@@ -147,7 +150,7 @@ class RecaptchaSolver:
 
         self._driver.switch_to.parent_frame()
 
-    def _solve_audio_challenge(self) -> None:
+    def _solve_audio_challenge(self, language: str) -> None:
         try:
             # Locate audio challenge download link
             download_link: WebElement = self._wait_for_element(
@@ -187,7 +190,7 @@ class RecaptchaSolver:
             audio = self._recognizer.listen(source)
 
             try:
-                recognized_text = self._service.recognize(self._recognizer, audio)
+                recognized_text = self._service.recognize(self._recognizer, audio, language)
 
             except sr.UnknownValueError:
                 raise RecaptchaException('Speech recognition API could not understand audio, try again')
