@@ -6,6 +6,8 @@ It supports single-step and multi-step audio solving for ReCAPTCHA V2 with >90% 
 
 Please use this package responsibly and for non-exploitative ends.
 
+Notice: This project is no longer being maintained.
+
 ## Requirements 
 
 Python 3.7+
