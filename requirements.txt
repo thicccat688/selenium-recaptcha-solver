@@ -19,5 +19,5 @@ SpeechRecognition==3.8.1
 tomli==2.0.1
 trio==0.22.0
 trio-websocket==0.9.2
-urllib3==1.26.14
+urllib3==1.26.19
 wsproto==1.2.0
