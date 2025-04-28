@@ -17,6 +17,6 @@ setup(
         'selenium~=4.8.0',
         'pydub~=0.25.1',
         'SpeechRecognition~=3.8.1',
-        'requests>=2.28.1,<2.32.0',
+        'requests>=2.28.1,<2.33.0',
     ],
 )
