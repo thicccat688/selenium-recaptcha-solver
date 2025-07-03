@@ -127,26 +127,30 @@ class RecaptchaSolver:
         if self._delay_config:
             self._delay_config.delay_after_click_verify_button()
 
-        try:
-            self._wait_for_element(
-                by=By.XPATH,
-                locator='//div[normalize-space()="Multiple correct solutions required - please solve more."]',
-                timeout=1,
-            )
-
-            self._solve_audio_challenge(self._language)
-
-            # Locate verify button again to avoid stale element reference and click it via JavaScript
-            second_verify_button = self._wait_for_element(
-                by=By.ID,
-                locator='recaptcha-verify-button',
-                timeout=5,
-            )
-
-            self._js_click(second_verify_button)
-
-        except TimeoutException:
-            pass
+        # Solve captcha again if an error occurs
+        for i in range(5):
+            try:
+                self._wait_for_element(
+                    by=By.CLASS_NAME,
+                    locator='rc-audiochallenge-error-message',
+                    timeout=1,
+                )
+    
+                self._solve_audio_challenge(self._language)
+    
+                # Locate verify button again to avoid stale element reference and click it via JavaScript
+                second_verify_button = self._wait_for_element(
+                    by=By.ID,
+                    locator='recaptcha-verify-button',
+                    timeout=5,
+                )
+    
+                self._js_click(second_verify_button)
+    
+            except TimeoutException:
+                break
+        else:
+            raise RecaptchaException('Failed to solve captcha after 5 attempts')
 
         self._driver.switch_to.parent_frame()
 
